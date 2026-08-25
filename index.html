@@ -1,0 +1,1273 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>CelticApp</title>
+    
+    <link rel="manifest" href="manifest.json">
+    <link rel="icon" type="image/png" href="icon.png">
+    <link rel="apple-touch-icon" href="icon.png">
+    <meta name="theme-color" content="#0f0f0f">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="CelticApp">
+
+    <!-- Font Digital a 7 segmenti Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=VT323&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --green-glow: #00ff66;
+            --green-dim: #00aa44;
+            --green-dark: #003311;
+            --amber-glow: #ffb000;
+            --red-glow: #ff2a2a;
+            --blue-glow: #00bfff;
+            --panel-bg: rgba(18, 22, 18, 0.85);
+            --panel-border: #1e3a24;
+        }
+
+        body {
+            font-family: 'Share Tech Mono', monospace;
+            background-color: #0b0d0b;
+            background-image: 
+                radial-gradient(rgba(0, 255, 102, 0.03) 1px, transparent 0),
+                linear-gradient(45deg, #111 25%, transparent 25%, transparent 75%, #111 75%, #111),
+                linear-gradient(45deg, #111 25%, #080808 25%, #080808 75%, #111 75%, #111);
+            background-size: 8px 8px, 16px 16px, 16px 16px;
+            background-position: 0 0, 0 0, 8px 8px;
+            color: var(--green-glow);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 15px;
+            box-sizing: border-box;
+            -webkit-user-select: none;
+            user-select: none;
+        }
+
+        .card {
+            background: var(--panel-bg);
+            border: 2px solid var(--panel-border);
+            border-radius: 8px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.9), inset 0 0 15px rgba(0, 255, 102, 0.05);
+            padding: 20px;
+            text-align: center;
+            max-width: 440px;
+            width: 100%;
+            position: relative;
+            backdrop-filter: blur(4px);
+        }
+
+        .app-header {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 15px;
+            border-bottom: 1px dashed var(--panel-border);
+            padding-bottom: 12px;
+        }
+
+        .app-logo {
+            width: 75px;
+            height: 75px;
+            object-fit: contain;
+            filter: drop-shadow(0 0 8px rgba(0, 255, 102, 0.4));
+            margin-bottom: 8px;
+        }
+
+        h1 {
+            margin: 0;
+            font-size: 1.6rem;
+            color: var(--green-glow);
+            letter-spacing: 3px;
+            text-shadow: 0 0 8px rgba(0, 255, 102, 0.6);
+            text-transform: uppercase;
+        }
+
+        .mode-subtitle {
+            font-size: 0.95rem;
+            color: var(--amber-glow);
+            font-weight: bold;
+            letter-spacing: 1.5px;
+            margin: 10px 0 5px 0;
+            text-shadow: 0 0 5px rgba(255, 176, 0, 0.4);
+            text-transform: uppercase;
+        }
+
+        .status-text {
+            font-size: 0.85rem;
+            color: #8fae96;
+            line-height: 1.3;
+            margin-bottom: 15px;
+        }
+
+        .seven-segment {
+            font-family: 'VT323', monospace;
+            line-height: 1;
+        }
+
+        .code-display {
+            font-size: 3.2rem;
+            color: var(--amber-glow);
+            letter-spacing: 6px;
+            background-color: #050805;
+            border: 2px solid #2a2000;
+            padding: 10px 15px;
+            border-radius: 4px;
+            margin: 15px 0;
+            text-shadow: 0 0 10px rgba(255, 176, 0, 0.7);
+            box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.8);
+        }
+
+        .timer-display {
+            font-size: 3.8rem;
+            color: var(--green-glow);
+            background-color: #040a05;
+            border: 2px solid var(--green-dark);
+            padding: 10px;
+            border-radius: 4px;
+            margin: 15px 0;
+            letter-spacing: 5px;
+            text-shadow: 0 0 12px rgba(0, 255, 102, 0.8);
+            box-shadow: inset 0 0 12px rgba(0, 0, 0, 0.9);
+            transition: opacity 0.2s, border-color 0.2s;
+        }
+
+        .timer-paused {
+            opacity: 0.5;
+            border-color: var(--amber-glow) !important;
+            text-shadow: 0 0 8px rgba(255, 176, 0, 0.5) !important;
+        }
+
+        .timer-expired {
+            color: var(--red-glow) !important;
+            border-color: #550000 !important;
+            text-shadow: 0 0 15px rgba(255, 42, 42, 0.9) !important;
+            animation: pulse-red 0.8s infinite alternate;
+        }
+
+        @keyframes pulse-red {
+            0% { opacity: 1; box-shadow: 0 0 10px rgba(255, 42, 42, 0.4); }
+            100% { opacity: 0.4; box-shadow: 0 0 25px rgba(255, 42, 42, 0.8); }
+        }
+
+        input, select {
+            width: 100%;
+            padding: 12px;
+            margin: 8px 0;
+            font-size: 1.1rem;
+            font-family: 'Share Tech Mono', monospace;
+            text-align: center;
+            border-radius: 4px;
+            border: 1px solid var(--panel-border);
+            background-color: #080d09;
+            color: var(--green-glow);
+            outline: none;
+            box-sizing: border-box;
+            box-shadow: inset 0 0 5px rgba(0,0,0,0.8);
+        }
+
+        input:focus, select:focus {
+            border-color: var(--green-glow);
+            box-shadow: 0 0 8px rgba(0, 255, 102, 0.4);
+        }
+
+        button {
+            width: 100%;
+            padding: 14px;
+            font-size: 1rem;
+            font-family: 'Share Tech Mono', monospace;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            background-color: #142817;
+            color: var(--green-glow);
+            border: 1px solid var(--green-dim);
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 8px 0;
+            transition: all 0.15s ease;
+            box-shadow: 0 3px 0 #0a140b;
+        }
+
+        button:active {
+            transform: translateY(2px);
+            box-shadow: 0 1px 0 #0a140b;
+            background-color: #1e3d23;
+        }
+
+        .btn-red { 
+            background-color: #3a0d0d; 
+            color: #ff6b6b; 
+            border-color: #7a1c1c; 
+            box-shadow: 0 3px 0 #1f0707;
+        }
+        .btn-red:active { background-color: #571414; }
+
+        .btn-blue { 
+            background-color: #0d283a; 
+            color: #6bc2ff; 
+            border-color: #1c527a; 
+            box-shadow: 0 3px 0 #07151f;
+        }
+        .btn-blue:active { background-color: #143b57; }
+
+        .btn-hold {
+            background-color: #2b1f0d;
+            color: var(--amber-glow);
+            border-color: var(--amber-glow);
+            box-shadow: 0 3px 0 #120d05;
+        }
+
+        .wire-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin: 15px 0;
+        }
+
+        .btn-wire {
+            width: 100%;
+            margin: 0;
+            font-size: 0.95rem;
+            padding: 14px 8px;
+            border-width: 2px;
+            position: relative;
+        }
+
+        .wire-red {
+            background: linear-gradient(135deg, #4a0f0f, #280808);
+            color: #ff8888;
+            border-color: #ff3333;
+        }
+        .wire-blue {
+            background: linear-gradient(135deg, #0f2b4a, #081728);
+            color: #88ccff;
+            border-color: #3399ff;
+        }
+        .wire-green {
+            background: linear-gradient(135deg, #0f4a1c, #08280f);
+            color: #88ffaa;
+            border-color: #33ff66;
+        }
+        .wire-yellow {
+            background: linear-gradient(135deg, #4a410f, #282308);
+            color: #ffee88;
+            border-color: #ffcc00;
+        }
+
+        .progress-container {
+            width: 100%;
+            background-color: #050a06;
+            border-radius: 4px;
+            margin: 15px 0;
+            overflow: hidden;
+            border: 1px solid var(--panel-border);
+            height: 24px;
+            display: none;
+            box-shadow: inset 0 0 8px rgba(0,0,0,0.9);
+        }
+
+        .progress-bar {
+            width: 0%;
+            height: 100%;
+            background: linear-gradient(90deg, #00aa44, #00ff66);
+            box-shadow: 0 0 10px rgba(0, 255, 102, 0.8);
+            transition: width 0.2s linear;
+        }
+
+        .progress-bar-amber {
+            background: linear-gradient(90deg, #aa7700, #ffb000) !important;
+            box-shadow: 0 0 10px rgba(255, 176, 0, 0.8) !important;
+        }
+
+        .progress-text {
+            font-size: 1rem;
+            font-weight: bold;
+            color: var(--green-glow);
+            margin-bottom: 5px;
+            letter-spacing: 2px;
+        }
+
+        .domination-score {
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+            margin: 15px 0;
+        }
+
+        .dom-box {
+            width: 48%;
+            padding: 10px;
+            border-radius: 4px;
+            background: #080d09;
+            box-sizing: border-box;
+        }
+
+        .dom-box-red { border: 2px solid #7a1c1c; }
+        .dom-box-blue { border: 2px solid #1c527a; }
+
+        .dom-title {
+            margin: 0 0 5px 0;
+            font-size: 0.9rem;
+            letter-spacing: 1px;
+        }
+
+        .dom-time {
+            font-size: 2.2rem;
+            font-weight: bold;
+        }
+
+        .setup-group {
+            margin: 12px 0;
+            text-align: left;
+        }
+
+        .setup-group label {
+            font-size: 0.8rem;
+            color: #6b8e73;
+            margin-bottom: 4px;
+            display: block;
+            letter-spacing: 1px;
+        }
+
+        .reset-btn {
+            background-color: #241010;
+            color: #ff7777;
+            border-color: #552222;
+            margin-top: 20px;
+            font-size: 0.85rem;
+            padding: 10px;
+            width: 80%;
+        }
+
+        .error {
+            color: var(--red-glow);
+            margin-top: 10px;
+            font-weight: bold;
+            letter-spacing: 1px;
+            text-shadow: 0 0 5px rgba(255, 42, 42, 0.6);
+        }
+
+        .app-version {
+            position: absolute;
+            bottom: 6px;
+            left: 10px;
+            font-size: 0.75rem;
+            color: #3b5240;
+            letter-spacing: 1px;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <div class="app-header">
+        <img src="icon.png" alt="Celtic Logo" class="app-logo" onerror="this.style.display='none'">
+        <h1>CELTIC APP</h1>
+    </div>
+
+    <div id="modeTitle" class="mode-subtitle">SELEZIONA MODALITÀ</div>
+    <p id="instructionText" class="status-text">Scegli la tipologia di missione da avviare.</p>
+
+    <!-- MENU SELEZIONE MODALITÀ -->
+    <div id="modeMenu">
+        <button onclick="setupMode('classic')">1. CLASSICA (OTP & TIMER)</button>
+        <button onclick="setupMode('domination')">2. DOMINIO (CONTROLLO AREA)</button>
+        <button onclick="setupMode('extraction')">3. ESTRAZIONE DATI</button>
+        <button onclick="setupMode('snd')">4. SEARCH & DESTROY</button>
+        <button onclick="setupMode('wires')">5. TAGLIO CAVI</button>
+        <button onclick="setupMode('checkpoint')">6. CHECKPOINT</button>
+    </div>
+
+    <!-- SEZIONE SETUP COMUNE -->
+    <div id="setupSection" style="display: none;">
+        <div class="setup-group">
+            <label>DURATA / TEMPO OBIETTIVO:</label>
+            <select id="timerSelect">
+                <option value="10">10 Minuti</option>
+                <option value="15">15 Minuti</option>
+                <option value="20">20 Minuti</option>
+                <option value="30" selected>30 Minuti</option>
+                <option value="45">45 Minuti</option>
+                <option value="60">60 Minuti</option>
+            </select>
+        </div>
+
+        <!-- OPZIONI SPECIFICHE CHECKPOINT -->
+        <div id="cpSetupOptions" style="display: none;">
+            <div class="setup-group">
+                <label>DURATA PRESIDIO:</label>
+                <select id="cpDurationSelect">
+                    <option value="5" selected>5 Minuti</option>
+                    <option value="10">10 Minuti</option>
+                    <option value="15">15 Minuti</option>
+                    <option value="20">20 Minuti</option>
+                    <option value="30">30 Minuti</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- VISUALIZZAZIONE CODICI MASTER (CHECKPOINT SETUP) -->
+        <div id="masterCodesDisplay" style="display: none; margin: 15px 0; background: rgba(0,0,0,0.4); padding: 10px; border-radius: 5px; border: 1px dashed var(--amber-glow, #ffb000);">
+            <div style="font-size: 0.85rem; color: #aaa; margin-bottom: 8px;">CODICI GENERATI PER IL MASTER:</div>
+            <div style="display: flex; justify-content: space-around; gap: 8px;">
+                <div id="masterCode1" class="seven-segment" style="font-size: 1.5rem; color: #fff;">----</div>
+                <div id="masterCode2" class="seven-segment" style="font-size: 1.5rem; color: #fff;">----</div>
+                <div id="masterCode3" class="seven-segment" style="font-size: 1.5rem; color: #fff;">----</div>
+            </div>
+        </div>
+
+        <!-- OPZIONI SPECIFICHE CAVI -->
+        <div id="wireSetupOptions" style="display: none;">
+            <div class="setup-group">
+                <label>PASSWORD PANNELLO CAVI:</label>
+                <input type="text" id="wireAccessPasswordInput" placeholder="Es. 12345" maxlength="10">
+            </div>
+            <div class="setup-group">
+                <label>CAVO DISINNESCO (CORRETTO):</label>
+                <select id="correctWireSelect">
+                    <option value="red">Rosso</option>
+                    <option value="blue" selected>Blu</option>
+                    <option value="green">Verde</option>
+                    <option value="yellow">Giallo</option>
+                </select>
+            </div>
+            <div class="setup-group">
+                <label>CAVO ESPLOSIVO (BOOM):</label>
+                <select id="boomWireSelect">
+                    <option value="red" selected>Rosso</option>
+                    <option value="blue">Blu</option>
+                    <option value="green">Verde</option>
+                    <option value="yellow">Giallo</option>
+                </select>
+            </div>
+        </div>
+
+        <button id="startSetupBtn" type="button" onclick="startSelectedMode()">AVVIA SETUP</button>
+    </div>
+
+    <!-- DISPLAY GENERICI -->
+    <div id="passwordDisplay" class="code-display seven-segment" style="display: none;">----</div>
+    <div id="timerDisplay" class="timer-display seven-segment" style="display: none;">00:00</div>
+
+    <!-- DISPLAY CHECKPOINT OBIETTIVI GIOCATORI -->
+    <div id="checkpointCodesDisplay" style="display: none; margin: 15px 0; background: #050805; padding: 12px; border-radius: 4px; border: 2px solid #2a2000;">
+        <div style="font-size: 0.85rem; color: var(--amber-glow); margin-bottom: 8px; letter-spacing: 1px;">STATO CODICI PRESIDIO</div>
+        <div style="display: flex; justify-content: space-around; gap: 8px;">
+            <div id="cpCode1" class="seven-segment" style="font-size: 1.6rem; color: var(--amber-glow);">****</div>
+            <div id="cpCode2" class="seven-segment" style="font-size: 1.6rem; color: var(--amber-glow);">****</div>
+            <div id="cpCode3" class="seven-segment" style="font-size: 1.6rem; color: var(--amber-glow);">****</div>
+        </div>
+    </div>
+
+    <!-- BARRA DI ESTRAZIONE / HOLD CHECKPOINT -->
+    <div id="progressText" class="progress-text" style="display: none;">DOWNLOAD: 0%</div>
+    <div id="progressContainer" class="progress-container">
+        <div id="progressBar" class="progress-bar"></div>
+    </div>
+
+    <!-- CONTROLLI MODALITÀ CLASSICA -->
+    <div id="classicControls" style="display: none;">
+        <button id="lockBtn" type="button" onclick="lockPasswordClassic()">NASCONDI E AVVIA TIMER</button>
+    </div>
+
+    <!-- INPUT OTP / CHECKPOINT -->
+    <div id="unlockSection" style="display: none;">
+        <input type="text" id="otpInput" placeholder="000000" maxlength="6" inputmode="numeric" pattern="[0-9]*">
+        <button id="verifyBtn" type="button" onclick="handleOtpSubmit()">INVIA CODICE</button>
+    </div>
+
+    <!-- INPUT PASSWORD CAVI -->
+    <div id="wireAccessSection" style="display: none;">
+        <input type="password" id="wireAccessInput" placeholder="Password Pannello">
+        <button type="button" onclick="verifyWireAccess()">ACCEDI AL PANNELLO</button>
+    </div>
+
+    <!-- MODALITÀ DOMINIO -->
+    <div id="dominationControls" style="display: none;">
+        <div class="domination-score">
+            <div class="dom-box dom-box-red">
+                <h3 class="dom-title" style="color: #ff6b6b;">ROSSI</h3>
+                <div id="redTimeDisplay" class="dom-time seven-segment" style="color: #ff6b6b;">00:00</div>
+            </div>
+            <div class="dom-box dom-box-blue">
+                <h3 class="dom-title" style="color: #6bc2ff;">BLU</h3>
+                <div id="blueTimeDisplay" class="dom-time seven-segment" style="color: #6bc2ff;">00:00</div>
+            </div>
+        </div>
+        <button class="btn-red" onclick="captureDomination('red')">CONQUISTA ROSSI</button>
+        <button class="btn-blue" onclick="captureDomination('blue')">CONQUISTA BLU</button>
+    </div>
+
+    <!-- MODALITÀ SEARCH & DESTROY -->
+    <div id="sndControls" style="display: none;">
+        <button id="armBtn" class="btn-red" onclick="armSND()">INNESCA ORDIGNO</button>
+    </div>
+
+    <!-- MODALITÀ CAVI -->
+    <div id="wireControls" style="display: none;">
+        <div class="wire-container">
+            <button class="btn-wire wire-red" onclick="cutWire('red')">CAVO ROSSO</button>
+            <button class="btn-wire wire-blue" onclick="cutWire('blue')">CAVO BLU</button>
+            <button class="btn-wire wire-green" onclick="cutWire('green')">CAVO VERDE</button>
+            <button class="btn-wire wire-yellow" onclick="cutWire('yellow')">CAVO GIALLO</button>
+        </div>
+    </div>
+
+    <!-- MODALITÀ CHECKPOINT TOGGLE PRESIDIO -->
+    <div id="cpHoldSection" style="display: none;">
+        <button id="cpToggleBtn" class="btn-hold" onclick="togglePresidio()">INIZIA PRESIDIO</button>
+    </div>
+
+    <div id="errorMessage" class="error"></div>
+
+    <button id="resetMenuBtn" class="reset-btn" type="button" onclick="initApp()" style="display: none;">MENU PRINCIPALE</button>
+
+    <div id="appVersion" class="app-version"></div>
+</div>
+
+<script>
+    const SECRET_BASE32 = 'NEWG4ME4PPCELTIC';
+    let currentMode = '';
+    let targetPassword = '';
+    let timerDurationMinutes = 30;
+    let timerInterval = null;
+    let totalSeconds = 0;
+    let maxSeconds = 0;
+    let activeDownloadSeconds = 0;
+    let wakeLock = null;
+
+    // Dominio
+    let activeDomFaction = null;
+    let redSeconds = 0;
+    let blueSeconds = 0;
+    let domTargetSeconds = 0;
+
+    // Estrazione
+    let extractionPaused = false;
+    let checkpoint33Passed = false;
+    let checkpoint66Passed = false;
+
+    // Cavi
+    let correctWire = '';
+    let boomWire = '';
+    let wireAccessPassword = '';
+
+    // Checkpoint
+    let cpTargetCodes = [];
+    let cpFoundCodes = [false, false, false];
+    let secretPresidioDurationMinutes = 5;
+    let cpPresidioInterval = null;
+    let isPresidiando = false;
+    let currentPresidioSeconds = 0;
+
+    // Suono di Allarme in Loop
+    let alarmInterval = null;
+    let audioCtx = null;
+
+    function startLoopingAlarm() {
+        stopLoopingAlarm();
+        try {
+            const AudioContext = window.AudioContext || window.webkitAudioContext;
+            if (!AudioContext) return;
+            audioCtx = new AudioContext();
+
+            const playBeepSequence = () => {
+                if (!audioCtx) return;
+                [0, 200, 400, 600].forEach((delay) => {
+                    setTimeout(() => {
+                        if (!audioCtx) return;
+                        const osc = audioCtx.createOscillator();
+                        const gain = audioCtx.createGain();
+                        osc.type = 'sawtooth';
+                        osc.frequency.value = 880;
+                        gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+                        osc.connect(gain);
+                        gain.connect(audioCtx.destination);
+                        osc.start();
+                        osc.stop(audioCtx.currentTime + 0.15);
+                    }, delay);
+                });
+            };
+
+            playBeepSequence();
+            alarmInterval = setInterval(playBeepSequence, 1000);
+        } catch (e) {
+            console.warn('Audio non riproducibile:', e);
+        }
+    }
+
+    function stopLoopingAlarm() {
+        if (alarmInterval) {
+            clearInterval(alarmInterval);
+            alarmInterval = null;
+        }
+        if (audioCtx) {
+            audioCtx.close().catch(() => {});
+            audioCtx = null;
+        }
+    }
+
+    function triggerTimeoutAlert(messageText) {
+        startLoopingAlarm();
+        const errDiv = document.getElementById('errorMessage');
+        if (messageText && errDiv) {
+            errDiv.innerText = messageText;
+        }
+    }
+
+    function generateAlphanumeric4() {
+        const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+        let res = '';
+        for (let i = 0; i < 4; i++) {
+            res += chars.charAt(Math.floor(Math.random() * chars.length));
+        }
+        return res;
+    }
+
+    // Lettura Versione
+    fetch('version.txt')
+        .then(response => response.text())
+        .then(version => {
+            if (version && version.trim()) {
+                document.getElementById('appVersion').innerText = version.trim();
+            }
+        })
+        .catch(() => {});
+
+    // Screen Wake Lock API
+    async function requestWakeLock() {
+        try {
+            if ('wakeLock' in navigator) {
+                wakeLock = await navigator.wakeLock.request('screen');
+            }
+        } catch (err) {
+            console.log(`Wake Lock Error: ${err.name}, ${err.message}`);
+        }
+    }
+
+    function releaseWakeLock() {
+        if (wakeLock !== null) {
+            wakeLock.release();
+            wakeLock = null;
+        }
+    }
+
+    function initApp() {
+        if (timerInterval) clearInterval(timerInterval);
+        if (cpPresidioInterval) clearInterval(cpPresidioInterval);
+        stopLoopingAlarm();
+        releaseWakeLock();
+
+        currentMode = '';
+        activeDomFaction = null;
+        extractionPaused = false;
+        checkpoint33Passed = false;
+        checkpoint66Passed = false;
+        activeDownloadSeconds = 0;
+        isPresidiando = false;
+        currentPresidioSeconds = 0;
+
+        document.getElementById('modeMenu').style.display = 'block';
+        document.getElementById('modeTitle').innerText = 'SELEZIONA MODALITÀ';
+        document.getElementById('instructionText').innerText = 'Scegli la tipologia di missione da avviare.';
+        
+        document.getElementById('setupSection').style.display = 'none';
+        document.getElementById('masterCodesDisplay').style.display = 'none';
+        document.getElementById('cpSetupOptions').style.display = 'none';
+        document.getElementById('wireSetupOptions').style.display = 'none';
+        document.getElementById('passwordDisplay').style.display = 'none';
+        document.getElementById('passwordDisplay').style.fontSize = '3.2rem';
+        document.getElementById('timerDisplay').style.display = 'none';
+        document.getElementById('timerDisplay').classList.remove('timer-expired', 'timer-paused');
+        
+        document.getElementById('checkpointCodesDisplay').style.display = 'none';
+        document.getElementById('progressContainer').style.display = 'none';
+        document.getElementById('progressText').style.display = 'none';
+        document.getElementById('progressBar').style.width = '0%';
+        document.getElementById('progressBar').classList.remove('progress-bar-amber');
+        
+        document.getElementById('classicControls').style.display = 'none';
+        document.getElementById('unlockSection').style.display = 'none';
+        document.getElementById('wireAccessSection').style.display = 'none';
+        document.getElementById('dominationControls').style.display = 'none';
+        document.getElementById('sndControls').style.display = 'none';
+        document.getElementById('wireControls').style.display = 'none';
+        document.getElementById('cpHoldSection').style.display = 'none';
+        
+        document.getElementById('resetMenuBtn').style.display = 'none';
+        document.getElementById('errorMessage').innerText = '';
+        document.getElementById('otpInput').value = '';
+        document.getElementById('wireAccessInput').value = '';
+        document.getElementById('wireAccessPasswordInput').value = '';
+    }
+
+    function setupMode(mode) {
+        currentMode = mode;
+        document.getElementById('modeMenu').style.display = 'none';
+        document.getElementById('setupSection').style.display = 'block';
+        document.getElementById('resetMenuBtn').style.display = 'inline-block';
+        document.getElementById('wireSetupOptions').style.display = 'none';
+        document.getElementById('cpSetupOptions').style.display = 'none';
+        document.getElementById('masterCodesDisplay').style.display = 'none';
+
+        if (mode === 'classic') {
+            document.getElementById('modeTitle').innerText = 'MODALITÀ CLASSICA';
+            document.getElementById('instructionText').innerText = 'Imposta la durata per la generazione della combinazione.';
+        } else if (mode === 'domination') {
+            document.getElementById('modeTitle').innerText = 'MODALITÀ DOMINIO';
+            document.getElementById('instructionText').innerText = 'Imposta il tempo di possesso totale per la vittoria di una fazione.';
+        } else if (mode === 'extraction') {
+            document.getElementById('modeTitle').innerText = 'MODALITÀ ESTRAZIONE DATI';
+            document.getElementById('instructionText').innerText = 'Il download impiegherà l\'80% del tempo totale, arrestandosi al 33% e 66% per gli OTP.';
+        } else if (mode === 'snd') {
+            document.getElementById('modeTitle').innerText = 'MODALITÀ SEARCH & DESTROY';
+            document.getElementById('instructionText').innerText = 'Dispositivo in attesa di innesco. Imposta il tempo di detonazione post-armamento.';
+        } else if (mode === 'wires') {
+            document.getElementById('modeTitle').innerText = 'MODALITÀ TAGLIO CAVI';
+            document.getElementById('instructionText').innerText = 'Imposta la password del pannello e assegna la funzione a ciascun cavo.';
+            document.getElementById('wireSetupOptions').style.display = 'block';
+        } else if (mode === 'checkpoint') {
+            document.getElementById('modeTitle').innerText = 'MODALITÀ CHECKPOINT';
+            document.getElementById('instructionText').innerText = 'Annota o crea gli indizi per i 3 codici qui sotto, imposta i timer e avvia il gioco.';
+            document.getElementById('cpSetupOptions').style.display = 'block';
+            
+            cpTargetCodes = [generateAlphanumeric4(), generateAlphanumeric4(), generateAlphanumeric4()];
+            document.getElementById('masterCode1').innerText = cpTargetCodes[0];
+            document.getElementById('masterCode2').innerText = cpTargetCodes[1];
+            document.getElementById('masterCode3').innerText = cpTargetCodes[2];
+            document.getElementById('masterCodesDisplay').style.display = 'block';
+        }
+    }
+
+    function startSelectedMode() {
+        timerDurationMinutes = parseInt(document.getElementById('timerSelect').value, 10);
+        document.getElementById('setupSection').style.display = 'none';
+        requestWakeLock();
+
+        if (currentMode === 'classic') {
+            targetPassword = Math.floor(1000 + Math.random() * 9000).toString();
+            document.getElementById('passwordDisplay').innerText = targetPassword;
+            document.getElementById('passwordDisplay').style.display = 'block';
+            document.getElementById('classicControls').style.display = 'block';
+            document.getElementById('instructionText').innerText = 'Imposta questa password sul lucchetto, poi avvia il timer.';
+        } 
+        else if (currentMode === 'domination') {
+            domTargetSeconds = timerDurationMinutes * 60;
+            redSeconds = 0;
+            blueSeconds = 0;
+            document.getElementById('dominationControls').style.display = 'block';
+            document.getElementById('instructionText').innerText = 'In attesa di prima conquista. Premi il pulsante della tua fazione per iniziare l\'accumulo punti.';
+            updateDomUI();
+            startDominationTimer();
+        } 
+        else if (currentMode === 'extraction') {
+            maxSeconds = timerDurationMinutes * 60;
+            totalSeconds = maxSeconds;
+            activeDownloadSeconds = 0;
+            checkpoint33Passed = false;
+            checkpoint66Passed = false;
+            extractionPaused = false;
+
+            document.getElementById('timerDisplay').style.display = 'block';
+            document.getElementById('progressContainer').style.display = 'block';
+            document.getElementById('progressText').style.display = 'block';
+            document.getElementById('instructionText').innerText = 'Download avviato. Il trasferimento dati e in corso...';
+            startExtractionTimer();
+        }
+        else if (currentMode === 'snd') {
+            targetPassword = Math.floor(1000 + Math.random() * 9000).toString();
+            document.getElementById('sndControls').style.display = 'block';
+            document.getElementById('instructionText').innerText = 'Obiettivo neutrale. Gli attaccanti devono premere INNESCA per avviare il conteggio.';
+        }
+        else if (currentMode === 'wires') {
+            correctWire = document.getElementById('correctWireSelect').value;
+            boomWire = document.getElementById('boomWireSelect').value;
+            wireAccessPassword = document.getElementById('wireAccessPasswordInput').value.trim();
+
+            if (!wireAccessPassword) {
+                document.getElementById('errorMessage').innerText = "Inserisci una password per proteggere il pannello dei cavi!";
+                document.getElementById('setupSection').style.display = 'block';
+                return;
+            }
+
+            if (correctWire === boomWire) {
+                document.getElementById('errorMessage').innerText = "Attenzione: cavo di disinnesco ed esplosivo devono differire!";
+                document.getElementById('setupSection').style.display = 'block';
+                return;
+            }
+
+            totalSeconds = timerDurationMinutes * 60;
+            document.getElementById('timerDisplay').style.display = 'block';
+            document.getElementById('wireAccessSection').style.display = 'block';
+            document.getElementById('instructionText').innerText = 'PANNELLO BLOCCO CAVI: Inserisci la password per accedere ai comandi.';
+            startGenericTimer();
+        }
+        else if (currentMode === 'checkpoint') {
+            cpFoundCodes = [false, false, false];
+            secretPresidioDurationMinutes = parseInt(document.getElementById('cpDurationSelect').value, 10);
+            currentPresidioSeconds = 0;
+
+            document.getElementById('masterCodesDisplay').style.display = 'none';
+            document.getElementById('cpSetupOptions').style.display = 'none';
+            
+            document.getElementById('cpCode1').innerText = '****';
+            document.getElementById('cpCode2').innerText = '****';
+            document.getElementById('cpCode3').innerText = '****';
+            
+            document.getElementById('cpCode1').style.color = 'var(--amber-glow, #ffb000)';
+            document.getElementById('cpCode2').style.color = 'var(--amber-glow, #ffb000)';
+            document.getElementById('cpCode3').style.color = 'var(--amber-glow, #ffb000)';
+
+            document.getElementById('checkpointCodesDisplay').style.display = 'block';
+            document.getElementById('unlockSection').style.display = 'block';
+            
+            const otpInput = document.getElementById('otpInput');
+            otpInput.placeholder = 'CODICE';
+            otpInput.maxLength = 4;
+            otpInput.type = 'text';
+            otpInput.removeAttribute('inputmode');
+
+            totalSeconds = timerDurationMinutes * 60;
+            document.getElementById('timerDisplay').style.display = 'block';
+            document.getElementById('instructionText').innerText = 'Trova gli indizi sul campo, inserisci i 3 codici per sbloccare il presidio.';
+            startGenericTimer();
+        }
+    }
+
+    // Accesso Pannello Cavi
+    function verifyWireAccess() {
+        const inputPass = document.getElementById('wireAccessInput').value.trim();
+        const errorDiv = document.getElementById('errorMessage');
+
+        if (inputPass === wireAccessPassword) {
+            errorDiv.innerText = '';
+            document.getElementById('wireAccessSection').style.display = 'none';
+            document.getElementById('wireControls').style.display = 'block';
+            document.getElementById('instructionText').innerText = 'PANNELLO SBLOCCATO: Taglia il cavo corretto per disinnescare l\'ordigno!';
+        } else {
+            errorDiv.innerText = 'PASSWORD ERRATA!';
+            setTimeout(() => { errorDiv.innerText = ''; }, 3000);
+        }
+    }
+
+    // Modalità Classica
+    function lockPasswordClassic() {
+        document.getElementById('passwordDisplay').innerText = '****';
+        document.getElementById('classicControls').style.display = 'none';
+        document.getElementById('unlockSection').style.display = 'block';
+        
+        const otpInput = document.getElementById('otpInput');
+        otpInput.placeholder = '000000';
+        otpInput.maxLength = 6;
+        otpInput.setAttribute('inputmode', 'numeric');
+
+        document.getElementById('instructionText').innerText = 'Inserisci l\'OTP per rivelare la password.';
+        totalSeconds = timerDurationMinutes * 60;
+        document.getElementById('timerDisplay').style.display = 'block';
+        startGenericTimer();
+    }
+
+    // Modalità Dominio
+    function captureDomination(faction) {
+        activeDomFaction = faction;
+        document.getElementById('instructionText').innerText = `HQ sotto controllo: FAZIONE ${faction.toUpperCase()}`;
+    }
+
+    function startDominationTimer() {
+        timerInterval = setInterval(() => {
+            if (activeDomFaction === 'red') {
+                redSeconds++;
+                if (redSeconds >= domTargetSeconds) winDomination('ROSSI');
+            } else if (activeDomFaction === 'blue') {
+                blueSeconds++;
+                if (blueSeconds >= domTargetSeconds) winDomination('BLU');
+            }
+            updateDomUI();
+        }, 1000);
+    }
+
+    function updateDomUI() {
+        document.getElementById('redTimeDisplay').innerText = formatTime(redSeconds);
+        document.getElementById('blueTimeDisplay').innerText = formatTime(blueSeconds);
+    }
+
+    function winDomination(winner) {
+        clearInterval(timerInterval);
+        document.getElementById('instructionText').innerText = `VITTORIA FINALE: LA FAZIONE ${winner} HA RAGGIUNTO L'OBIETTIVO!`;
+        document.getElementById('dominationControls').style.display = 'none';
+        triggerTimeoutAlert(`TEMPO SCADUTO - VITTORIA FAZIONE ${winner}`);
+    }
+
+    // Modalità Estrazione Dati
+    function startExtractionTimer() {
+        const targetDownloadTimeSeconds = maxSeconds * 0.8;
+
+        timerInterval = setInterval(() => {
+            totalSeconds--;
+            updateTimerUI(totalSeconds);
+
+            if (totalSeconds <= 0) {
+                clearInterval(timerInterval);
+                document.getElementById('timerDisplay').innerText = 'TEMPO SCADUTO!';
+                document.getElementById('timerDisplay').classList.add('timer-expired');
+                document.getElementById('instructionText').innerText = 'MANDATO SCADUTO: Trasferimento dati fallito.';
+                document.getElementById('unlockSection').style.display = 'none';
+                triggerTimeoutAlert("TEMPO SCADUTO");
+                return;
+            }
+
+            if (!extractionPaused) {
+                activeDownloadSeconds++;
+                
+                let percent = Math.floor((activeDownloadSeconds / targetDownloadTimeSeconds) * 100);
+                if (percent > 100) percent = 100;
+
+                document.getElementById('progressBar').style.width = percent + '%';
+                document.getElementById('progressText').innerText = `DOWNLOAD: ${percent}%`;
+
+                if (percent >= 33 && !checkpoint33Passed) {
+                    pauseExtractionForOtp("BLOCCO TRASFERIMENTO (33%)! Inserisci l'OTP per sbloccare la banda.");
+                    return;
+                }
+
+                if (percent >= 66 && !checkpoint66Passed) {
+                    pauseExtractionForOtp("BLOCCO TRASFERIMENTO (66%)! Inserisci l'OTP per autorizzare l'ultimo blocco dati.");
+                    return;
+                }
+
+                if (percent >= 100) {
+                    clearInterval(timerInterval);
+                    document.getElementById('progressBar').style.width = '100%';
+                    document.getElementById('progressText').innerText = 'DOWNLOAD: 100%';
+                    document.getElementById('instructionText').innerText = 'DOWNLOAD COMPLETATO! Tutti i dati sono stati estratti con successo.';
+                    document.getElementById('unlockSection').style.display = 'none';
+                }
+            }
+        }, 1000);
+    }
+
+    function pauseExtractionForOtp(msg) {
+        extractionPaused = true;
+        document.getElementById('unlockSection').style.display = 'block';
+        
+        const otpInput = document.getElementById('otpInput');
+        otpInput.placeholder = '000000';
+        otpInput.maxLength = 6;
+        otpInput.setAttribute('inputmode', 'numeric');
+
+        document.getElementById('instructionText').innerText = msg;
+    }
+
+    // Modalità Search & Destroy
+    function armSND() {
+        document.getElementById('sndControls').style.display = 'none';
+        document.getElementById('unlockSection').style.display = 'block';
+        
+        const otpInput = document.getElementById('otpInput');
+        otpInput.placeholder = '000000';
+        otpInput.maxLength = 6;
+        otpInput.setAttribute('inputmode', 'numeric');
+
+        document.getElementById('instructionText').innerText = 'ORDIGNO INNESCATO! I difensori devono inserire l\'OTP di disinnesco.';
+        totalSeconds = timerDurationMinutes * 60;
+        document.getElementById('timerDisplay').style.display = 'block';
+        
+        timerInterval = setInterval(() => {
+            totalSeconds--;
+            updateTimerUI(totalSeconds);
+
+            if (totalSeconds <= 0) {
+                clearInterval(timerInterval);
+                document.getElementById('timerDisplay').innerText = 'BOOM!';
+                document.getElementById('timerDisplay').classList.add('timer-expired');
+                document.getElementById('instructionText').innerText = 'DETONAZIONE! L\'obiettivo e stato distrutto.';
+                document.getElementById('unlockSection').style.display = 'none';
+                triggerTimeoutAlert("TEMPO SCADUTO");
+            }
+        }, 1000);
+    }
+
+    // Modalità Taglio Cavi
+    function cutWire(color) {
+        if (color === correctWire) {
+            clearInterval(timerInterval);
+            document.getElementById('passwordDisplay').innerText = 'ORDIGNO DISINNESCATO';
+            document.getElementById('passwordDisplay').style.fontSize = '1.8rem';
+            document.getElementById('passwordDisplay').style.display = 'block';
+            document.getElementById('instructionText').innerText = 'MISSIONE COMPIUTA! Il circuito di innesco e stato neutralizzato.';
+            document.getElementById('wireControls').style.display = 'none';
+        } else if (color === boomWire) {
+            clearInterval(timerInterval);
+            document.getElementById('timerDisplay').innerText = 'BOOM!';
+            document.getElementById('timerDisplay').classList.add('timer-expired');
+            document.getElementById('instructionText').innerText = 'CAVO ERRATO! L\'ordigno e esploso all\'istante.';
+            document.getElementById('wireControls').style.display = 'none';
+            triggerTimeoutAlert("TEMPO SCADUTO");
+        } else {
+            document.getElementById('errorMessage').innerText = 'Cavo neutro! Nessun effetto, il timer continua a scorrere.';
+            setTimeout(() => { document.getElementById('errorMessage').innerText = ''; }, 3000);
+        }
+    }
+
+    // Timer Generico
+    function startGenericTimer() {
+        if (timerInterval) clearInterval(timerInterval);
+        document.getElementById('timerDisplay').classList.remove('timer-paused');
+        
+        timerInterval = setInterval(() => {
+            totalSeconds--;
+            updateTimerUI(totalSeconds);
+
+            if (totalSeconds <= 0) {
+                clearInterval(timerInterval);
+                if (cpPresidioInterval) clearInterval(cpPresidioInterval);
+                document.getElementById('timerDisplay').innerText = 'TEMPO SCADUTO!';
+                document.getElementById('timerDisplay').classList.add('timer-expired');
+                document.getElementById('instructionText').innerText = 'TEMPO SCADUTO: Obiettivo fallito.';
+                document.getElementById('unlockSection').style.display = 'none';
+                document.getElementById('wireAccessSection').style.display = 'none';
+                document.getElementById('wireControls').style.display = 'none';
+                document.getElementById('cpHoldSection').style.display = 'none';
+                triggerTimeoutAlert("TEMPO SCADUTO");
+            }
+        }, 1000);
+    }
+
+    function pauseGenericTimer() {
+        if (timerInterval) {
+            clearInterval(timerInterval);
+            timerInterval = null;
+        }
+        document.getElementById('timerDisplay').classList.add('timer-paused');
+    }
+
+    function updateTimerUI(secs) {
+        const mins = Math.floor(secs / 60);
+        const remSecs = secs % 60;
+        document.getElementById('timerDisplay').innerText = `${mins.toString().padStart(2, '0')}:${remSecs.toString().padStart(2, '0')}`;
+    }
+
+    function formatTime(secs) {
+        const mins = Math.floor(secs / 60);
+        const remSecs = secs % 60;
+        return `${mins.toString().padStart(2, '0')}:${remSecs.toString().padStart(2, '0')}`;
+    }
+
+    // TOTP Utils
+    function base32ToBuf(str) {
+        const base32chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567';
+        let bits = '';
+        let hex = '';
+        for (let i = 0; i < str.length; i++) {
+            const val = base32chars.indexOf(str.charAt(i).toUpperCase());
+            bits += val.toString(2).padStart(5, '0');
+        }
+        for (let i = 0; i + 4 <= bits.length; i += 4) {
+            const chunk = bits.substr(i, 4);
+            hex = hex + parseInt(chunk, 2).toString(16);
+        }
+        if (hex.length % 2 !== 0) hex = hex.substring(0, hex.length - 1);
+        const binary = new Uint8Array(hex.length / 2);
+        for (let i = 0; i < hex.length / 2; i++) {
+            binary[i] = parseInt(hex.substr(i * 2, 2), 16);
+        }
+        return binary.buffer;
+    }
+
+    async function generateTOTP(secret) {
+        const epoch = Math.floor(Date.now() / 1000);
+        const time = Math.floor(epoch / 30);
+        const timeBuf = new ArrayBuffer(8);
+        const view = new DataView(timeBuf);
+        view.setUint32(4, time, false);
+
+        const keyData = base32ToBuf(secret);
+        const cryptoKey = await crypto.subtle.importKey(
+            'raw', keyData, { name: 'HMAC', hash: 'SHA-1' }, false, ['sign']
+        );
+
+        const signature = await crypto.subtle.sign('HMAC', cryptoKey, timeBuf);
+        const sigBytes = new Uint8Array(signature);
+
+        const offset = sigBytes[sigBytes.length - 1] & 0xf;
+        const binary =
+            ((sigBytes[offset] & 0x7f) << 24) |
+            ((sigBytes[offset + 1] & 0xff) << 16) |
+            ((sigBytes[offset + 2] & 0xff) << 8) |
+            (sigBytes[offset + 3] & 0xff);
+
+        let otp = (binary % 1000000).toString();
+        return otp.padStart(6, '0');
+    }
+
+    // Gestione Submit OTP / Checkpoint
+    async function handleOtpSubmit() {
+        const userInput = document.getElementById('otpInput').value.trim().toUpperCase();
+        const errorDiv = document.getElementById('errorMessage');
+        errorDiv.innerText = '';
+
+        if (currentMode === 'checkpoint') {
+            let matchedIndex = -1;
+            for (let i = 0; i < 3; i++) {
+                if (cpTargetCodes[i] === userInput && !cpFoundCodes[i]) {
+                    matchedIndex = i;
+                    break;
+                }
+            }
+
+            if (matchedIndex !== -1) {
+                cpFoundCodes[matchedIndex] = true;
+                const codeElem = document.getElementById(`cpCode${matchedIndex + 1}`);
+                codeElem.innerText = cpTargetCodes[matchedIndex];
+                codeElem.style.color = 'var(--green-glow)';
+                document.getElementById('otpInput').value = '';
+
+                if (cpFoundCodes[0] && cpFoundCodes[1] && cpFoundCodes[2]) {
+                    document.getElementById('unlockSection').style.display = 'none';
+                    document.getElementById('cpHoldSection').style.display = 'block';
+                    document.getElementById('instructionText').innerText = 'TUTTI I CODICI INSERITI! Premi il pulsante per avviare il presidio dell\'area.';
+                    setupCpToggleButtonUI();
+                } else {
+                    document.getElementById('instructionText').innerText = `CODICE ${matchedIndex + 1} CORRETTO! Inserisci i rimanenti.`;
+                }
+            } else {
+                errorDiv.innerText = 'CODICE CHECKPOINT ERRATO O GIA INSERITO!';
+                setTimeout(() => { errorDiv.innerText = ''; }, 3000);
+            }
+            return;
+        }
+
+        try {
+            const validOtp = await generateTOTP(SECRET_BASE32);
+            if (userInput === validOtp) {
+                document.getElementById('otpInput').value = '';
+                
+                if (currentMode === 'extraction') {
+                    document.getElementById('unlockSection').style.display = 'none';
+                    errorDiv.innerText = '';
+                    
+                    if (!checkpoint33Passed) {
+                        checkpoint33Passed = true;
+                    } else if (!checkpoint66Passed) {
+                        checkpoint66Passed = true;
+                    }
+                    
+                    extractionPaused = false;
+                    document.getElementById('instructionText').innerText = 'OTP corretto! Ripristino banda e avanzamento download...';
+                } 
+                else if (currentMode === 'classic' || currentMode === 'snd') {
+                    clearInterval(timerInterval);
+                    document.getElementById('passwordDisplay').innerText = targetPassword;
+                    document.getElementById('passwordDisplay').style.display = 'block';
+                    document.getElementById('instructionText').innerText = 'OBIETTIVO SBLOCCATO! Utilizza questa combinazione.';
+                    document.getElementById('unlockSection').style.display = 'none';
+                }
+            } else {
+                errorDiv.innerText = 'CODICE OTP ERRATO O SCADUTO!';
+            }
+        } catch (e) {
+            errorDiv.innerText = 'Errore nel controllo OTP.';
+            console.error(e);
+        }
+    }
+
+    // Gestione Presidio Single-Click (Toggle)
+    function setupCpToggleButtonUI() {
+        const progressCont = document.getElementById('progressContainer');
+        const progressBar = document.getElementById('progressBar');
+        const progressText = document.getElementById('progressText');
+
+        progressCont.style.display = 'block';
+        progressText.style.display = 'block';
+        progressBar.classList.add('progress-bar-amber');
+        progressText.innerText = 'PRESIDIO: 0%';
+        progressBar.style.width = '0%';
+    }
+
+    function togglePresidio() {
+        if (!isPresidiando) {
+            startPresidio();
+        } else {
+            cancelPresidio();
+        }
+    }
+
+    function startPresidio() {
+        isPresidiando = true;
+        pauseGenericTimer();
+
+        const btn = document.getElementById('cpToggleBtn');
+        btn.innerText = 'ANNULLA PRESIDIO';
+        btn.classList.add('btn-red');
+        btn.classList.remove('btn-hold');
+
+        document.getElementById('instructionText').innerText = 'PRESIDIO IN CORSO... Premi ANNULLA per interrompere.';
+
+        const progressBar = document.getElementById('progressBar');
+        const progressText = document.getElementById('progressText');
+
+        const totalPresidioSeconds = secretPresidioDurationMinutes * 60;
+
+        cpPresidioInterval = setInterval(() => {
+            currentPresidioSeconds++;
+            let progress = Math.min(100, Math.floor((currentPresidioSeconds / totalPresidioSeconds) * 100));
+
+            progressBar.style.width = progress + '%';
+            progressText.innerText = `PRESIDIO: ${progress}%`;
+
+            if (currentPresidioSeconds >= totalPresidioSeconds) {
+                completePresidio();
+            }
+        }, 1000);
+    }
+
+    function cancelPresidio() {
+        if (cpPresidioInterval) clearInterval(cpPresidioInterval);
+        isPresidiando = false;
+
+        const btn = document.getElementById('cpToggleBtn');
+        btn.innerText = 'INIZIA PRESIDIO';
+        btn.classList.remove('btn-red');
+        btn.classList.add('btn-hold');
+
+        document.getElementById('instructionText').innerText = 'PRESIDIO INTERROTTO! Premi per riprovare.';
+        document.getElementById('progressBar').style.width = '0%';
+        document.getElementById('progressText').innerText = 'PRESIDIO: 0%';
+        currentPresidioSeconds = 0;
+
+        startGenericTimer();
+    }
+
+    function completePresidio() {
+        if (cpPresidioInterval) clearInterval(cpPresidioInterval);
+        if (timerInterval) clearInterval(timerInterval);
+        isPresidiando = false;
+
+        document.getElementById('cpHoldSection').style.display = 'none';
+        document.getElementById('instructionText').innerText = 'PRESIDIO CONQUISTATO CON SUCCESSO! VITTORIA!';
+        document.getElementById('passwordDisplay').innerText = 'PRESIDIO OK';
+        document.getElementById('passwordDisplay').style.fontSize = '2rem';
+        document.getElementById('passwordDisplay').style.display = 'block';
+    }
+
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('./sw.js')
+            .then(() => console.log('Service Worker Registrato'))
+            .catch(err => console.log('Errore SW:', err));
+    }
+
+    initApp();
+</script>
+
+</body>
+</html>
