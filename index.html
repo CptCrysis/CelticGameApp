@@ -13,7 +13,6 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="CelticApp">
 
-    <!-- Font Digital a 7 segmenti Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=VT323&family=Share+Tech+Mono&display=swap" rel="stylesheet">
@@ -26,7 +25,7 @@
             --amber-glow: #ffb000;
             --red-glow: #ff2a2a;
             --blue-glow: #00bfff;
-            --panel-bg: rgba(18, 22, 18, 0.85);
+            --panel-bg: rgba(18, 22, 18, 0.90);
             --panel-border: #1e3a24;
         }
 
@@ -45,48 +44,49 @@
             justify-content: center;
             min-height: 100vh;
             margin: 0;
-            padding: 15px;
+            padding: 10px;
             box-sizing: border-box;
             -webkit-user-select: none;
             user-select: none;
         }
 
+        /* CARD BASE (PORTRAIT) */
         .card {
             background: var(--panel-bg);
             border: 2px solid var(--panel-border);
             border-radius: 8px;
             box-shadow: 0 0 20px rgba(0, 0, 0, 0.9), inset 0 0 15px rgba(0, 255, 102, 0.05);
-            padding: 20px;
+            padding: 15px;
             text-align: center;
-            max-width: 440px;
             width: 100%;
+            max-width: 420px; /* Compatto per verticale */
             position: relative;
             backdrop-filter: blur(4px);
+            transition: max-width 0.3s ease;
         }
 
         .app-header {
             display: flex;
-            flex-direction: column;
             align-items: center;
             justify-content: center;
-            margin-bottom: 15px;
+            gap: 12px;
+            margin-bottom: 8px;
             border-bottom: 1px dashed var(--panel-border);
-            padding-bottom: 12px;
+            padding-bottom: 6px;
         }
 
         .app-logo {
-            width: 75px;
-            height: 75px;
+            width: 38px;
+            height: 38px;
             object-fit: contain;
             filter: drop-shadow(0 0 8px rgba(0, 255, 102, 0.4));
-            margin-bottom: 8px;
         }
 
         h1 {
             margin: 0;
             font-size: 1.6rem;
             color: var(--green-glow);
-            letter-spacing: 3px;
+            letter-spacing: 2px;
             text-shadow: 0 0 8px rgba(0, 255, 102, 0.6);
             text-transform: uppercase;
         }
@@ -96,7 +96,7 @@
             color: var(--amber-glow);
             font-weight: bold;
             letter-spacing: 1.5px;
-            margin: 10px 0 5px 0;
+            margin: 4px 0;
             text-shadow: 0 0 5px rgba(255, 176, 0, 0.4);
             text-transform: uppercase;
         }
@@ -104,8 +104,8 @@
         .status-text {
             font-size: 0.85rem;
             color: #8fae96;
-            line-height: 1.3;
-            margin-bottom: 15px;
+            line-height: 1.2;
+            margin-bottom: 8px;
         }
 
         .seven-segment {
@@ -113,17 +113,24 @@
             line-height: 1;
         }
 
+        /* GRIGLIA MENU SELEZIONE (PORTRAIT: 1 COLONNA) */
+        .mode-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 8px;
+            margin-top: 8px;
+        }
+
         .code-display {
-            font-size: 3.2rem;
+            font-size: 3rem;
             color: var(--amber-glow);
-            letter-spacing: 6px;
+            letter-spacing: 4px;
             background-color: #050805;
             border: 2px solid #2a2000;
-            padding: 10px 15px;
+            padding: 8px;
             border-radius: 4px;
-            margin: 15px 0;
+            margin: 8px 0;
             text-shadow: 0 0 10px rgba(255, 176, 0, 0.7);
-            box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.8);
         }
 
         .timer-display {
@@ -131,13 +138,11 @@
             color: var(--green-glow);
             background-color: #040a05;
             border: 2px solid var(--green-dark);
-            padding: 10px;
+            padding: 6px;
             border-radius: 4px;
-            margin: 15px 0;
-            letter-spacing: 5px;
+            margin: 8px 0;
+            letter-spacing: 4px;
             text-shadow: 0 0 12px rgba(0, 255, 102, 0.8);
-            box-shadow: inset 0 0 12px rgba(0, 0, 0, 0.9);
-            transition: opacity 0.2s, border-color 0.2s;
         }
 
         .timer-paused {
@@ -158,11 +163,29 @@
             100% { opacity: 0.4; box-shadow: 0 0 25px rgba(255, 42, 42, 0.8); }
         }
 
+        .setup-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 8px;
+            margin: 8px 0;
+        }
+
+        .setup-group {
+            text-align: left;
+        }
+
+        .setup-group label {
+            font-size: 0.75rem;
+            color: #6b8e73;
+            margin-bottom: 2px;
+            display: block;
+        }
+
         input, select {
             width: 100%;
-            padding: 12px;
-            margin: 8px 0;
-            font-size: 1.1rem;
+            padding: 8px;
+            margin: 2px 0;
+            font-size: 0.95rem;
             font-family: 'Share Tech Mono', monospace;
             text-align: center;
             border-radius: 4px;
@@ -171,141 +194,92 @@
             color: var(--green-glow);
             outline: none;
             box-sizing: border-box;
-            box-shadow: inset 0 0 5px rgba(0,0,0,0.8);
-        }
-
-        input:focus, select:focus {
-            border-color: var(--green-glow);
-            box-shadow: 0 0 8px rgba(0, 255, 102, 0.4);
         }
 
         button {
             width: 100%;
-            padding: 14px;
-            font-size: 1rem;
+            padding: 10px;
+            font-size: 0.9rem;
             font-family: 'Share Tech Mono', monospace;
             font-weight: bold;
             text-transform: uppercase;
-            letter-spacing: 1.5px;
+            letter-spacing: 1px;
             background-color: #142817;
             color: var(--green-glow);
             border: 1px solid var(--green-dim);
             border-radius: 4px;
             cursor: pointer;
-            margin: 8px 0;
-            transition: all 0.15s ease;
-            box-shadow: 0 3px 0 #0a140b;
+            margin: 4px 0;
         }
 
         button:active {
-            transform: translateY(2px);
-            box-shadow: 0 1px 0 #0a140b;
+            transform: translateY(1px);
             background-color: #1e3d23;
         }
 
-        .btn-red { 
-            background-color: #3a0d0d; 
-            color: #ff6b6b; 
-            border-color: #7a1c1c; 
-            box-shadow: 0 3px 0 #1f0707;
-        }
-        .btn-red:active { background-color: #571414; }
+        .btn-red { background-color: #3a0d0d; color: #ff6b6b; border-color: #7a1c1c; }
+        .btn-blue { background-color: #0d283a; color: #6bc2ff; border-color: #1c527a; }
+        .btn-hold { background-color: #2b1f0d; color: var(--amber-glow); border-color: var(--amber-glow); }
 
-        .btn-blue { 
-            background-color: #0d283a; 
-            color: #6bc2ff; 
-            border-color: #1c527a; 
-            box-shadow: 0 3px 0 #07151f;
-        }
-        .btn-blue:active { background-color: #143b57; }
-
-        .btn-hold {
-            background-color: #2b1f0d;
-            color: var(--amber-glow);
-            border-color: var(--amber-glow);
-            box-shadow: 0 3px 0 #120d05;
-        }
-
+        /* CAVI (PORTRAIT: 2 COLONNE) */
         .wire-container {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 10px;
-            margin: 15px 0;
+            gap: 8px;
+            margin: 8px 0;
         }
 
         .btn-wire {
             width: 100%;
             margin: 0;
-            font-size: 0.95rem;
-            padding: 14px 8px;
-            border-width: 2px;
-            position: relative;
+            font-size: 0.8rem;
+            padding: 10px 2px;
         }
 
-        .wire-red {
-            background: linear-gradient(135deg, #4a0f0f, #280808);
-            color: #ff8888;
-            border-color: #ff3333;
-        }
-        .wire-blue {
-            background: linear-gradient(135deg, #0f2b4a, #081728);
-            color: #88ccff;
-            border-color: #3399ff;
-        }
-        .wire-green {
-            background: linear-gradient(135deg, #0f4a1c, #08280f);
-            color: #88ffaa;
-            border-color: #33ff66;
-        }
-        .wire-yellow {
-            background: linear-gradient(135deg, #4a410f, #282308);
-            color: #ffee88;
-            border-color: #ffcc00;
-        }
+        .wire-red { background: linear-gradient(135deg, #4a0f0f, #280808); color: #ff8888; border-color: #ff3333; }
+        .wire-blue { background: linear-gradient(135deg, #0f2b4a, #081728); color: #88ccff; border-color: #3399ff; }
+        .wire-green { background: linear-gradient(135deg, #0f4a1c, #08280f); color: #88ffaa; border-color: #33ff66; }
+        .wire-yellow { background: linear-gradient(135deg, #4a410f, #282308); color: #ffee88; border-color: #ffcc00; }
 
         .progress-container {
             width: 100%;
             background-color: #050a06;
             border-radius: 4px;
-            margin: 15px 0;
+            margin: 8px 0;
             overflow: hidden;
             border: 1px solid var(--panel-border);
-            height: 24px;
+            height: 18px;
             display: none;
-            box-shadow: inset 0 0 8px rgba(0,0,0,0.9);
         }
 
         .progress-bar {
             width: 0%;
             height: 100%;
             background: linear-gradient(90deg, #00aa44, #00ff66);
-            box-shadow: 0 0 10px rgba(0, 255, 102, 0.8);
             transition: width 0.2s linear;
         }
 
         .progress-bar-amber {
             background: linear-gradient(90deg, #aa7700, #ffb000) !important;
-            box-shadow: 0 0 10px rgba(255, 176, 0, 0.8) !important;
         }
 
         .progress-text {
-            font-size: 1rem;
+            font-size: 0.85rem;
             font-weight: bold;
             color: var(--green-glow);
-            margin-bottom: 5px;
-            letter-spacing: 2px;
+            margin-bottom: 2px;
         }
 
         .domination-score {
             display: flex;
             justify-content: space-between;
-            gap: 10px;
-            margin: 15px 0;
+            gap: 8px;
+            margin: 8px 0;
         }
 
         .dom-box {
             width: 48%;
-            padding: 10px;
+            padding: 6px;
             border-radius: 4px;
             background: #080d09;
             box-sizing: border-box;
@@ -314,56 +288,59 @@
         .dom-box-red { border: 2px solid #7a1c1c; }
         .dom-box-blue { border: 2px solid #1c527a; }
 
-        .dom-title {
-            margin: 0 0 5px 0;
-            font-size: 0.9rem;
-            letter-spacing: 1px;
+        .dom-title { margin: 0 0 2px 0; font-size: 0.75rem; }
+        .dom-time { font-size: 1.8rem; font-weight: bold; }
+
+        .input-inline-group {
+            display: flex;
+            gap: 6px;
+            margin: 8px 0;
         }
 
-        .dom-time {
-            font-size: 2.2rem;
-            font-weight: bold;
-        }
-
-        .setup-group {
-            margin: 12px 0;
-            text-align: left;
-        }
-
-        .setup-group label {
-            font-size: 0.8rem;
-            color: #6b8e73;
-            margin-bottom: 4px;
-            display: block;
-            letter-spacing: 1px;
-        }
+        .input-inline-group input { margin: 0; }
+        .input-inline-group button { margin: 0; flex-shrink: 0; width: auto; padding: 0 15px; }
 
         .reset-btn {
             background-color: #241010;
             color: #ff7777;
             border-color: #552222;
-            margin-top: 20px;
-            font-size: 0.85rem;
-            padding: 10px;
-            width: 80%;
-        }
-
-        .error {
-            color: var(--red-glow);
             margin-top: 10px;
-            font-weight: bold;
-            letter-spacing: 1px;
-            text-shadow: 0 0 5px rgba(255, 42, 42, 0.6);
+            font-size: 0.75rem;
+            padding: 6px;
+            width: 70%;
         }
 
-        .app-version {
-            position: absolute;
-            bottom: 6px;
-            left: 10px;
-            font-size: 0.75rem;
-            color: #3b5240;
-            letter-spacing: 1px;
-            pointer-events: none;
+        .error { color: var(--red-glow); margin-top: 6px; font-weight: bold; }
+        .app-version { position: absolute; bottom: 2px; left: 8px; font-size: 0.65rem; color: #3b5240; pointer-events: none; }
+
+        /* ========================================================= */
+        /* MEDIA QUERY: ADATTAMENTO AUTOMATICO SCHERMO ORIZZONTALE  */
+        /* ========================================================= */
+        @media (orientation: landscape) {
+            .card {
+                max-width: 720px; /* Amplia la scheda sul tablet orizzontale */
+                padding: 15px 25px;
+            }
+
+            .mode-grid {
+                grid-template-columns: 1fr 1fr; /* Menu su 2 colonne */
+            }
+
+            .setup-grid {
+                grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); /* Setup su colonne affiancate */
+            }
+
+            .wire-container {
+                grid-template-columns: repeat(4, 1fr); /* Cavi tutti in riga */
+            }
+
+            .timer-display {
+                font-size: 4.5rem; /* Timer piu grande nel case */
+            }
+
+            .code-display {
+                font-size: 3.5rem;
+            }
         }
     </style>
 </head>
@@ -379,7 +356,7 @@
     <p id="instructionText" class="status-text">Scegli la tipologia di missione da avviare.</p>
 
     <!-- MENU SELEZIONE MODALITÀ -->
-    <div id="modeMenu">
+    <div id="modeMenu" class="mode-grid">
         <button onclick="setupMode('classic')">1. CLASSICA (OTP & TIMER)</button>
         <button onclick="setupMode('domination')">2. DOMINIO (CONTROLLO AREA)</button>
         <button onclick="setupMode('extraction')">3. ESTRAZIONE DATI</button>
@@ -390,21 +367,20 @@
 
     <!-- SEZIONE SETUP COMUNE -->
     <div id="setupSection" style="display: none;">
-        <div class="setup-group">
-            <label>DURATA / TEMPO OBIETTIVO:</label>
-            <select id="timerSelect">
-                <option value="10">10 Minuti</option>
-                <option value="15">15 Minuti</option>
-                <option value="20">20 Minuti</option>
-                <option value="30" selected>30 Minuti</option>
-                <option value="45">45 Minuti</option>
-                <option value="60">60 Minuti</option>
-            </select>
-        </div>
-
-        <!-- OPZIONI SPECIFICHE CHECKPOINT -->
-        <div id="cpSetupOptions" style="display: none;">
+        <div class="setup-grid">
             <div class="setup-group">
+                <label>DURATA / TEMPO OBIETTIVO:</label>
+                <select id="timerSelect">
+                    <option value="10">10 Minuti</option>
+                    <option value="15">15 Minuti</option>
+                    <option value="20">20 Minuti</option>
+                    <option value="30" selected>30 Minuti</option>
+                    <option value="45">45 Minuti</option>
+                    <option value="60">60 Minuti</option>
+                </select>
+            </div>
+
+            <div id="cpSetupOptions" class="setup-group" style="display: none;">
                 <label>DURATA PRESIDIO:</label>
                 <select id="cpDurationSelect">
                     <option value="5" selected>5 Minuti</option>
@@ -416,24 +392,22 @@
             </div>
         </div>
 
-        <!-- VISUALIZZAZIONE CODICI MASTER (CHECKPOINT SETUP) -->
-        <div id="masterCodesDisplay" style="display: none; margin: 15px 0; background: rgba(0,0,0,0.4); padding: 10px; border-radius: 5px; border: 1px dashed var(--amber-glow, #ffb000);">
-            <div style="font-size: 0.85rem; color: #aaa; margin-bottom: 8px;">CODICI GENERATI PER IL MASTER:</div>
+        <div id="masterCodesDisplay" style="display: none; margin: 10px 0; background: rgba(0,0,0,0.4); padding: 8px; border-radius: 5px; border: 1px dashed var(--amber-glow);">
+            <div style="font-size: 0.75rem; color: #aaa; margin-bottom: 4px;">CODICI GENERATI PER IL MASTER:</div>
             <div style="display: flex; justify-content: space-around; gap: 8px;">
-                <div id="masterCode1" class="seven-segment" style="font-size: 1.5rem; color: #fff;">----</div>
-                <div id="masterCode2" class="seven-segment" style="font-size: 1.5rem; color: #fff;">----</div>
-                <div id="masterCode3" class="seven-segment" style="font-size: 1.5rem; color: #fff;">----</div>
+                <div id="masterCode1" class="seven-segment" style="font-size: 1.3rem; color: #fff;">----</div>
+                <div id="masterCode2" class="seven-segment" style="font-size: 1.3rem; color: #fff;">----</div>
+                <div id="masterCode3" class="seven-segment" style="font-size: 1.3rem; color: #fff;">----</div>
             </div>
         </div>
 
-        <!-- OPZIONI SPECIFICHE CAVI -->
-        <div id="wireSetupOptions" style="display: none;">
+        <div id="wireSetupOptions" class="setup-grid" style="display: none;">
             <div class="setup-group">
                 <label>PASSWORD PANNELLO CAVI:</label>
                 <input type="text" id="wireAccessPasswordInput" placeholder="Es. 12345" maxlength="10">
             </div>
             <div class="setup-group">
-                <label>CAVO DISINNESCO (CORRETTO):</label>
+                <label>CAVO DISINNESCO:</label>
                 <select id="correctWireSelect">
                     <option value="red">Rosso</option>
                     <option value="blue" selected>Blu</option>
@@ -459,40 +433,39 @@
     <div id="passwordDisplay" class="code-display seven-segment" style="display: none;">----</div>
     <div id="timerDisplay" class="timer-display seven-segment" style="display: none;">00:00</div>
 
-    <!-- DISPLAY CHECKPOINT OBIETTIVI GIOCATORI -->
-    <div id="checkpointCodesDisplay" style="display: none; margin: 15px 0; background: #050805; padding: 12px; border-radius: 4px; border: 2px solid #2a2000;">
-        <div style="font-size: 0.85rem; color: var(--amber-glow); margin-bottom: 8px; letter-spacing: 1px;">STATO CODICI PRESIDIO</div>
+    <div id="checkpointCodesDisplay" style="display: none; margin: 8px 0; background: #050805; padding: 8px; border-radius: 4px; border: 2px solid #2a2000;">
+        <div style="font-size: 0.75rem; color: var(--amber-glow); margin-bottom: 4px;">STATO CODICI PRESIDIO</div>
         <div style="display: flex; justify-content: space-around; gap: 8px;">
-            <div id="cpCode1" class="seven-segment" style="font-size: 1.6rem; color: var(--amber-glow);">****</div>
-            <div id="cpCode2" class="seven-segment" style="font-size: 1.6rem; color: var(--amber-glow);">****</div>
-            <div id="cpCode3" class="seven-segment" style="font-size: 1.6rem; color: var(--amber-glow);">****</div>
+            <div id="cpCode1" class="seven-segment" style="font-size: 1.5rem; color: var(--amber-glow);">****</div>
+            <div id="cpCode2" class="seven-segment" style="font-size: 1.5rem; color: var(--amber-glow);">****</div>
+            <div id="cpCode3" class="seven-segment" style="font-size: 1.5rem; color: var(--amber-glow);">****</div>
         </div>
     </div>
 
-    <!-- BARRA DI ESTRAZIONE / HOLD CHECKPOINT -->
     <div id="progressText" class="progress-text" style="display: none;">DOWNLOAD: 0%</div>
     <div id="progressContainer" class="progress-container">
         <div id="progressBar" class="progress-bar"></div>
     </div>
 
-    <!-- CONTROLLI MODALITÀ CLASSICA -->
+    <!-- CONTROLLI VARI -->
     <div id="classicControls" style="display: none;">
         <button id="lockBtn" type="button" onclick="lockPasswordClassic()">NASCONDI E AVVIA TIMER</button>
     </div>
 
-    <!-- INPUT OTP / CHECKPOINT -->
     <div id="unlockSection" style="display: none;">
-        <input type="text" id="otpInput" placeholder="000000" maxlength="6" inputmode="numeric" pattern="[0-9]*">
-        <button id="verifyBtn" type="button" onclick="handleOtpSubmit()">INVIA CODICE</button>
+        <div class="input-inline-group">
+            <input type="text" id="otpInput" placeholder="000000" maxlength="6" inputmode="numeric" pattern="[0-9]*">
+            <button id="verifyBtn" type="button" onclick="handleOtpSubmit()">INVIA CODICE</button>
+        </div>
     </div>
 
-    <!-- INPUT PASSWORD CAVI -->
     <div id="wireAccessSection" style="display: none;">
-        <input type="password" id="wireAccessInput" placeholder="Password Pannello">
-        <button type="button" onclick="verifyWireAccess()">ACCEDI AL PANNELLO</button>
+        <div class="input-inline-group">
+            <input type="password" id="wireAccessInput" placeholder="Password Pannello">
+            <button type="button" onclick="verifyWireAccess()">ACCEDI</button>
+        </div>
     </div>
 
-    <!-- MODALITÀ DOMINIO -->
     <div id="dominationControls" style="display: none;">
         <div class="domination-score">
             <div class="dom-box dom-box-red">
@@ -504,16 +477,16 @@
                 <div id="blueTimeDisplay" class="dom-time seven-segment" style="color: #6bc2ff;">00:00</div>
             </div>
         </div>
-        <button class="btn-red" onclick="captureDomination('red')">CONQUISTA ROSSI</button>
-        <button class="btn-blue" onclick="captureDomination('blue')">CONQUISTA BLU</button>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+            <button class="btn-red" onclick="captureDomination('red')">CONQUISTA ROSSI</button>
+            <button class="btn-blue" onclick="captureDomination('blue')">CONQUISTA BLU</button>
+        </div>
     </div>
 
-    <!-- MODALITÀ SEARCH & DESTROY -->
     <div id="sndControls" style="display: none;">
         <button id="armBtn" class="btn-red" onclick="armSND()">INNESCA ORDIGNO</button>
     </div>
 
-    <!-- MODALITÀ CAVI -->
     <div id="wireControls" style="display: none;">
         <div class="wire-container">
             <button class="btn-wire wire-red" onclick="cutWire('red')">CAVO ROSSO</button>
@@ -523,7 +496,6 @@
         </div>
     </div>
 
-    <!-- MODALITÀ CHECKPOINT TOGGLE PRESIDIO -->
     <div id="cpHoldSection" style="display: none;">
         <button id="cpToggleBtn" class="btn-hold" onclick="togglePresidio()">INIZIA PRESIDIO</button>
     </div>
@@ -546,23 +518,19 @@
     let activeDownloadSeconds = 0;
     let wakeLock = null;
 
-    // Dominio
     let activeDomFaction = null;
     let redSeconds = 0;
     let blueSeconds = 0;
     let domTargetSeconds = 0;
 
-    // Estrazione
     let extractionPaused = false;
     let checkpoint33Passed = false;
     let checkpoint66Passed = false;
 
-    // Cavi
     let correctWire = '';
     let boomWire = '';
     let wireAccessPassword = '';
 
-    // Checkpoint
     let cpTargetCodes = [];
     let cpFoundCodes = [false, false, false];
     let secretPresidioDurationMinutes = 5;
@@ -570,7 +538,6 @@
     let isPresidiando = false;
     let currentPresidioSeconds = 0;
 
-    // Suono di Allarme in Loop
     let alarmInterval = null;
     let audioCtx = null;
 
@@ -634,7 +601,6 @@
         return res;
     }
 
-    // Lettura Versione
     fetch('version.txt')
         .then(response => response.text())
         .then(version => {
@@ -644,7 +610,6 @@
         })
         .catch(() => {});
 
-    // Screen Wake Lock API
     async function requestWakeLock() {
         try {
             if ('wakeLock' in navigator) {
@@ -677,7 +642,7 @@
         isPresidiando = false;
         currentPresidioSeconds = 0;
 
-        document.getElementById('modeMenu').style.display = 'block';
+        document.getElementById('modeMenu').style.display = 'grid';
         document.getElementById('modeTitle').innerText = 'SELEZIONA MODALITÀ';
         document.getElementById('instructionText').innerText = 'Scegli la tipologia di missione da avviare.';
         
@@ -686,7 +651,7 @@
         document.getElementById('cpSetupOptions').style.display = 'none';
         document.getElementById('wireSetupOptions').style.display = 'none';
         document.getElementById('passwordDisplay').style.display = 'none';
-        document.getElementById('passwordDisplay').style.fontSize = '3.2rem';
+        document.getElementById('passwordDisplay').style.fontSize = '3rem';
         document.getElementById('timerDisplay').style.display = 'none';
         document.getElementById('timerDisplay').classList.remove('timer-expired', 'timer-paused');
         
@@ -735,7 +700,7 @@
         } else if (mode === 'wires') {
             document.getElementById('modeTitle').innerText = 'MODALITÀ TAGLIO CAVI';
             document.getElementById('instructionText').innerText = 'Imposta la password del pannello e assegna la funzione a ciascun cavo.';
-            document.getElementById('wireSetupOptions').style.display = 'block';
+            document.getElementById('wireSetupOptions').style.display = 'grid';
         } else if (mode === 'checkpoint') {
             document.getElementById('modeTitle').innerText = 'MODALITÀ CHECKPOINT';
             document.getElementById('instructionText').innerText = 'Annota o crea gli indizi per i 3 codici qui sotto, imposta i timer e avvia il gioco.';
@@ -824,9 +789,9 @@
             document.getElementById('cpCode2').innerText = '****';
             document.getElementById('cpCode3').innerText = '****';
             
-            document.getElementById('cpCode1').style.color = 'var(--amber-glow, #ffb000)';
-            document.getElementById('cpCode2').style.color = 'var(--amber-glow, #ffb000)';
-            document.getElementById('cpCode3').style.color = 'var(--amber-glow, #ffb000)';
+            document.getElementById('cpCode1').style.color = 'var(--amber-glow)';
+            document.getElementById('cpCode2').style.color = 'var(--amber-glow)';
+            document.getElementById('cpCode3').style.color = 'var(--amber-glow)';
 
             document.getElementById('checkpointCodesDisplay').style.display = 'block';
             document.getElementById('unlockSection').style.display = 'block';
@@ -844,7 +809,6 @@
         }
     }
 
-    // Accesso Pannello Cavi
     function verifyWireAccess() {
         const inputPass = document.getElementById('wireAccessInput').value.trim();
         const errorDiv = document.getElementById('errorMessage');
@@ -860,7 +824,6 @@
         }
     }
 
-    // Modalità Classica
     function lockPasswordClassic() {
         document.getElementById('passwordDisplay').innerText = '****';
         document.getElementById('classicControls').style.display = 'none';
@@ -877,7 +840,6 @@
         startGenericTimer();
     }
 
-    // Modalità Dominio
     function captureDomination(faction) {
         activeDomFaction = faction;
         document.getElementById('instructionText').innerText = `HQ sotto controllo: FAZIONE ${faction.toUpperCase()}`;
@@ -908,7 +870,6 @@
         triggerTimeoutAlert(`TEMPO SCADUTO - VITTORIA FAZIONE ${winner}`);
     }
 
-    // Modalità Estrazione Dati
     function startExtractionTimer() {
         const targetDownloadTimeSeconds = maxSeconds * 0.8;
 
@@ -968,7 +929,6 @@
         document.getElementById('instructionText').innerText = msg;
     }
 
-    // Modalità Search & Destroy
     function armSND() {
         document.getElementById('sndControls').style.display = 'none';
         document.getElementById('unlockSection').style.display = 'block';
@@ -997,7 +957,6 @@
         }, 1000);
     }
 
-    // Modalità Taglio Cavi
     function cutWire(color) {
         if (color === correctWire) {
             clearInterval(timerInterval);
@@ -1019,7 +978,6 @@
         }
     }
 
-    // Timer Generico
     function startGenericTimer() {
         if (timerInterval) clearInterval(timerInterval);
         document.getElementById('timerDisplay').classList.remove('timer-paused');
@@ -1063,7 +1021,6 @@
         return `${mins.toString().padStart(2, '0')}:${remSecs.toString().padStart(2, '0')}`;
     }
 
-    // TOTP Utils
     function base32ToBuf(str) {
         const base32chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567';
         let bits = '';
@@ -1110,7 +1067,6 @@
         return otp.padStart(6, '0');
     }
 
-    // Gestione Submit OTP / Checkpoint
     async function handleOtpSubmit() {
         const userInput = document.getElementById('otpInput').value.trim().toUpperCase();
         const errorDiv = document.getElementById('errorMessage');
@@ -1181,7 +1137,6 @@
         }
     }
 
-    // Gestione Presidio Single-Click (Toggle)
     function setupCpToggleButtonUI() {
         const progressCont = document.getElementById('progressContainer');
         const progressBar = document.getElementById('progressBar');
