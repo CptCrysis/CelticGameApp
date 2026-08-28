@@ -1,4 +1,4 @@
-const CACHE_NAME = 'celticapp-v15';
+const CACHE_NAME = 'celticapp-v16';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
