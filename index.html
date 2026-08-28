@@ -2,13 +2,13 @@
 <html lang="it">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>CelticApp</title>
     
     <link rel="manifest" href="manifest.json">
     <link rel="icon" type="image/png" href="icon.png">
     <link rel="apple-touch-icon" href="icon.png">
-    <meta name="theme-color" content="#0f0f0f">
+    <meta name="theme-color" content="#0b0d0b">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="CelticApp">
@@ -29,6 +29,14 @@
             --panel-border: #1e3a24;
         }
 
+        html, body {
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden; /* Elimina qualsiasi barra di scorrimento del browser */
+            margin: 0;
+            padding: 0;
+        }
+
         body {
             font-family: 'Share Tech Mono', monospace;
             background-color: #0b0d0b;
@@ -42,10 +50,8 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            min-height: 100vh;
-            margin: 0;
-            padding: 10px;
             box-sizing: border-box;
+            padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
             -webkit-user-select: none;
             user-select: none;
         }
@@ -59,13 +65,15 @@
             padding: 15px;
             text-align: center;
             width: 100%;
-            max-width: 420px; /* Compatto per verticale */
+            max-width: 420px;
+            max-height: 98vh;
+            overflow-y: auto;
             position: relative;
             backdrop-filter: blur(4px);
             transition: max-width 0.3s ease;
+            box-sizing: border-box;
         }
 
-        /* HEADER CON LOGO CENTRATO IN ALTO SOPRA IL TITOLO */
         .app-header {
             display: flex;
             flex-direction: column;
@@ -116,7 +124,6 @@
             line-height: 1;
         }
 
-        /* GRIGLIA MENU SELEZIONE (PORTRAIT: 1 COLONNA) */
         .mode-grid {
             display: grid;
             grid-template-columns: 1fr;
@@ -197,6 +204,7 @@
             color: var(--green-glow);
             outline: none;
             box-sizing: border-box;
+            cursor: pointer;
         }
 
         button {
@@ -224,7 +232,6 @@
         .btn-blue { background-color: #0d283a; color: #6bc2ff; border-color: #1c527a; }
         .btn-hold { background-color: #2b1f0d; color: var(--amber-glow); border-color: var(--amber-glow); }
 
-        /* CAVI (PORTRAIT: 2 COLONNE) */
         .wire-container {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -294,26 +301,65 @@
         .dom-title { margin: 0 0 2px 0; font-size: 0.75rem; }
         .dom-time { font-size: 1.8rem; font-weight: bold; }
 
-        .input-inline-group {
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-            margin: 8px 0;
-        }
-
-        /* DISPLAY INPUT PER LA TASTIERA VIRTULAE */
-        .keyboard-input-display {
-            background-color: #050805;
-            border: 2px solid var(--panel-border);
-            color: var(--green-glow);
-            font-size: 1.8rem;
-            letter-spacing: 4px;
-            padding: 6px;
-            border-radius: 4px;
-            min-height: 38px;
+        /* MODALE POPUP */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(5px);
             display: flex;
             align-items: center;
             justify-content: center;
+            z-index: 9999;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s ease;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .modal-content {
+            background: var(--panel-bg);
+            border: 2px solid var(--green-glow);
+            border-radius: 8px;
+            box-shadow: 0 0 30px rgba(0, 255, 102, 0.2);
+            padding: 15px;
+            width: 90%;
+            max-width: 450px;
+            box-sizing: border-box;
+            position: relative;
+        }
+
+        .keyboard-input-display {
+            background-color: #050805;
+            border: 2px solid var(--green-glow);
+            color: var(--green-glow);
+            font-size: 2.2rem;
+            letter-spacing: 6px;
+            padding: 8px;
+            border-radius: 4px;
+            min-height: 42px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 10px;
+            text-shadow: 0 0 8px rgba(0, 255, 102, 0.6);
+            transition: all 0.2s ease;
+        }
+
+        /* Stile per l'errore sul visore della tastiera */
+        .keyboard-input-display.display-error {
+            color: var(--red-glow) !important;
+            border-color: var(--red-glow) !important;
+            text-shadow: 0 0 10px rgba(255, 42, 42, 0.8) !important;
+            font-size: 1.6rem !important;
+            letter-spacing: 2px !important;
         }
 
         /* LAYOUT TASTIERA SU SCHERMO (LETTERE A SINISTRA / NUMERI A DESTRA) */
@@ -338,10 +384,29 @@
 
         .key-btn {
             flex: 1;
-            padding: 8px 2px;
-            font-size: 0.85rem;
+            padding: 10px 2px;
+            font-size: 0.95rem;
             margin: 0;
             min-width: 0;
+        }
+
+        .close-modal-btn {
+            position: absolute;
+            top: -12px;
+            right: -12px;
+            background: #3a0d0d;
+            color: #ff6b6b;
+            border: 2px solid #7a1c1c;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            font-size: 1rem;
+            line-height: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.8);
         }
 
         .reset-btn {
@@ -357,39 +422,40 @@
         .error { color: var(--red-glow); margin-top: 6px; font-weight: bold; }
         .app-version { position: absolute; bottom: 2px; left: 8px; font-size: 0.65rem; color: #3b5240; pointer-events: none; }
 
-        /* ========================================================= */
-        /* MEDIA QUERY: ADATTAMENTO AUTOMATICO SCHERMO ORIZZONTALE  */
-        /* ========================================================= */
         @media (orientation: landscape) {
             .card {
-                max-width: 720px; /* Amplia la scheda sul tablet orizzontale */
+                max-width: 720px;
                 padding: 15px 25px;
             }
 
             .app-logo {
-                width: 42px; /* Riduzione contenuta per risparmiare spazio verticale in orizzontale */
+                width: 42px;
                 height: 42px;
                 margin-bottom: 2px;
             }
 
             .mode-grid {
-                grid-template-columns: 1fr 1fr; /* Menu su 2 colonne */
+                grid-template-columns: 1fr 1fr;
             }
 
             .setup-grid {
-                grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); /* Setup su colonne affiancate */
+                grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
             }
 
             .wire-container {
-                grid-template-columns: repeat(4, 1fr); /* Cavi tutti in riga */
+                grid-template-columns: repeat(4, 1fr);
             }
 
             .timer-display {
-                font-size: 4.5rem; /* Timer piu grande nel case */
+                font-size: 4.5rem;
             }
 
             .code-display {
                 font-size: 3.5rem;
+            }
+
+            .modal-content {
+                max-width: 550px;
             }
         }
     </style>
@@ -454,7 +520,7 @@
         <div id="wireSetupOptions" class="setup-grid" style="display: none;">
             <div class="setup-group">
                 <label>PASSWORD PANNELLO CAVI:</label>
-                <input type="text" id="wireAccessPasswordInput" placeholder="Es. 12345" maxlength="10">
+                <input type="text" id="wireAccessPasswordInput" placeholder="Tocca per inserire" readonly inputmode="none" onclick="openKeyboardModal('wireSetup')">
             </div>
             <div class="setup-group">
                 <label>CAVO DISINNESCO:</label>
@@ -502,86 +568,15 @@
         <button id="lockBtn" type="button" onclick="lockPasswordClassic()">NASCONDI E AVVIA TIMER</button>
     </div>
 
-    <div id="unlockSection" style="display: none;">
-        <div class="input-inline-group">
-            <div id="keyboardDisplay" class="keyboard-input-display seven-segment"></div>
-
-            <!-- TASTIERA SU SCHERMO PERSONALIZZATA -->
-            <div class="virtual-keyboard">
-                <!-- LETTERE A SINISTRA -->
-                <div class="keyboard-column">
-                    <div class="key-row">
-                        <button type="button" class="key-btn" onclick="appendKey('A')">A</button>
-                        <button type="button" class="key-btn" onclick="appendKey('B')">B</button>
-                        <button type="button" class="key-btn" onclick="appendKey('C')">C</button>
-                        <button type="button" class="key-btn" onclick="appendKey('D')">D</button>
-                    </div>
-                    <div class="key-row">
-                        <button type="button" class="key-btn" onclick="appendKey('E')">E</button>
-                        <button type="button" class="key-btn" onclick="appendKey('F')">F</button>
-                        <button type="button" class="key-btn" onclick="appendKey('G')">G</button>
-                        <button type="button" class="key-btn" onclick="appendKey('H')">H</button>
-                    </div>
-                    <div class="key-row">
-                        <button type="button" class="key-btn" onclick="appendKey('J')">J</button>
-                        <button type="button" class="key-btn" onclick="appendKey('K')">K</button>
-                        <button type="button" class="key-btn" onclick="appendKey('L')">L</button>
-                        <button type="button" class="key-btn" onclick="appendKey('M')">M</button>
-                    </div>
-                    <div class="key-row">
-                        <button type="button" class="key-btn" onclick="appendKey('N')">N</button>
-                        <button type="button" class="key-btn" onclick="appendKey('P')">P</button>
-                        <button type="button" class="key-btn" onclick="appendKey('Q')">Q</button>
-                        <button type="button" class="key-btn" onclick="appendKey('R')">R</button>
-                    </div>
-                    <div class="key-row">
-                        <button type="button" class="key-btn" onclick="appendKey('S')">S</button>
-                        <button type="button" class="key-btn" onclick="appendKey('T')">T</button>
-                        <button type="button" class="key-btn" onclick="appendKey('U')">U</button>
-                        <button type="button" class="key-btn" onclick="appendKey('V')">V</button>
-                    </div>
-                    <div class="key-row">
-                        <button type="button" class="key-btn" onclick="appendKey('W')">W</button>
-                        <button type="button" class="key-btn" onclick="appendKey('X')">X</button>
-                        <button type="button" class="key-btn" onclick="appendKey('Y')">Y</button>
-                        <button type="button" class="key-btn" onclick="appendKey('Z')">Z</button>
-                    </div>
-                </div>
-
-                <!-- NUMERI A DESTRA -->
-                <div class="keyboard-column">
-                    <div class="key-row">
-                        <button type="button" class="key-btn" onclick="appendKey('1')">1</button>
-                        <button type="button" class="key-btn" onclick="appendKey('2')">2</button>
-                        <button type="button" class="key-btn" onclick="appendKey('3')">3</button>
-                    </div>
-                    <div class="key-row">
-                        <button type="button" class="key-btn" onclick="appendKey('4')">4</button>
-                        <button type="button" class="key-btn" onclick="appendKey('5')">5</button>
-                        <button type="button" class="key-btn" onclick="appendKey('6')">6</button>
-                    </div>
-                    <div class="key-row">
-                        <button type="button" class="key-btn" onclick="appendKey('7')">7</button>
-                        <button type="button" class="key-btn" onclick="appendKey('8')">8</button>
-                        <button type="button" class="key-btn" onclick="appendKey('9')">9</button>
-                    </div>
-                    <div class="key-row">
-                        <button type="button" class="key-btn btn-red" onclick="deleteKey()">DEL</button>
-                        <button type="button" class="key-btn" onclick="appendKey('0')">0</button>
-                        <button type="button" class="key-btn btn-blue" onclick="clearKey()">CLR</button>
-                    </div>
-                </div>
-            </div>
-
-            <button id="verifyBtn" type="button" onclick="handleOtpSubmit()">INVIA CODICE</button>
-        </div>
+    <div id="unlockSection" style="display: none; margin: 10px 0;">
+        <button type="button" onclick="openKeyboardModal('otp')" style="font-size: 1.1rem; padding: 12px; background: #1a331e; border-color: var(--green-glow);">
+            ⌨ INSERISCI CODICE
+        </button>
     </div>
 
-    <div id="wireAccessSection" style="display: none;">
-        <div class="input-inline-group">
-            <input type="password" id="wireAccessInput" placeholder="Password Pannello">
-            <button type="button" onclick="verifyWireAccess()">ACCEDI</button>
-        </div>
+    <div id="wireAccessSection" style="display: none; margin: 10px 0;">
+        <input type="password" id="wireAccessInput" placeholder="Password Pannello (Tocca qui)" readonly inputmode="none" onclick="openKeyboardModal('wireAccess')" style="margin-bottom: 8px;">
+        <button type="button" onclick="verifyWireAccess()" style="font-size: 1.1rem; padding: 12px;">ACCEDI AL PANNELLO</button>
     </div>
 
     <div id="dominationControls" style="display: none;">
@@ -625,6 +620,83 @@
     <div id="appVersion" class="app-version"></div>
 </div>
 
+<!-- MODALE POPUP -->
+<div id="keyboardModal" class="modal-overlay">
+    <div class="modal-content">
+        <div class="close-modal-btn" onclick="closeKeyboardModal()">✕</div>
+        
+        <div id="keyboardDisplay" class="keyboard-input-display seven-segment"></div>
+
+        <div class="virtual-keyboard">
+            <!-- LETTERE A SINISTRA -->
+            <div class="keyboard-column">
+                <div class="key-row">
+                    <button type="button" class="key-btn" onclick="appendKey('A')">A</button>
+                    <button type="button" class="key-btn" onclick="appendKey('B')">B</button>
+                    <button type="button" class="key-btn" onclick="appendKey('C')">C</button>
+                    <button type="button" class="key-btn" onclick="appendKey('D')">D</button>
+                </div>
+                <div class="key-row">
+                    <button type="button" class="key-btn" onclick="appendKey('E')">E</button>
+                    <button type="button" class="key-btn" onclick="appendKey('F')">F</button>
+                    <button type="button" class="key-btn" onclick="appendKey('G')">G</button>
+                    <button type="button" class="key-btn" onclick="appendKey('H')">H</button>
+                </div>
+                <div class="key-row">
+                    <button type="button" class="key-btn" onclick="appendKey('J')">J</button>
+                    <button type="button" class="key-btn" onclick="appendKey('K')">K</button>
+                    <button type="button" class="key-btn" onclick="appendKey('L')">L</button>
+                    <button type="button" class="key-btn" onclick="appendKey('M')">M</button>
+                </div>
+                <div class="key-row">
+                    <button type="button" class="key-btn" onclick="appendKey('N')">N</button>
+                    <button type="button" class="key-btn" onclick="appendKey('P')">P</button>
+                    <button type="button" class="key-btn" onclick="appendKey('Q')">Q</button>
+                    <button type="button" class="key-btn" onclick="appendKey('R')">R</button>
+                </div>
+                <div class="key-row">
+                    <button type="button" class="key-btn" onclick="appendKey('S')">S</button>
+                    <button type="button" class="key-btn" onclick="appendKey('T')">T</button>
+                    <button type="button" class="key-btn" onclick="appendKey('U')">U</button>
+                    <button type="button" class="key-btn" onclick="appendKey('V')">V</button>
+                </div>
+                <div class="key-row">
+                    <button type="button" class="key-btn" onclick="appendKey('W')">W</button>
+                    <button type="button" class="key-btn" onclick="appendKey('X')">X</button>
+                    <button type="button" class="key-btn" onclick="appendKey('Y')">Y</button>
+                    <button type="button" class="key-btn" onclick="appendKey('Z')">Z</button>
+                </div>
+            </div>
+
+            <!-- NUMERI A DESTRA -->
+            <div class="keyboard-column">
+                <div class="key-row">
+                    <button type="button" class="key-btn" onclick="appendKey('1')">1</button>
+                    <button type="button" class="key-btn" onclick="appendKey('2')">2</button>
+                    <button type="button" class="key-btn" onclick="appendKey('3')">3</button>
+                </div>
+                <div class="key-row">
+                    <button type="button" class="key-btn" onclick="appendKey('4')">4</button>
+                    <button type="button" class="key-btn" onclick="appendKey('5')">5</button>
+                    <button type="button" class="key-btn" onclick="appendKey('6')">6</button>
+                </div>
+                <div class="key-row">
+                    <button type="button" class="key-btn" onclick="appendKey('7')">7</button>
+                    <button type="button" class="key-btn" onclick="appendKey('8')">8</button>
+                    <button type="button" class="key-btn" onclick="appendKey('9')">9</button>
+                </div>
+                <div class="key-row">
+                    <button type="button" class="key-btn btn-red" onclick="deleteKey()">DEL</button>
+                    <button type="button" class="key-btn" onclick="appendKey('0')">0</button>
+                    <button type="button" class="key-btn btn-blue" onclick="clearKey()">CLR</button>
+                </div>
+            </div>
+        </div>
+
+        <button id="verifyBtn" type="button" onclick="handleVirtualKeyboardSubmit()" style="margin-top: 10px; font-size: 1.1rem; padding: 12px;">CONFERMA</button>
+    </div>
+</div>
+
 <script>
     const SECRET_BASE32 = 'NEWG4ME4PPCELTIC';
     let currentMode = '';
@@ -661,15 +733,70 @@
 
     let currentInputCode = '';
     let maxInputLength = 6;
+    let isDisplayingError = false;
+    let keyboardTargetMode = 'otp'; // 'otp', 'wireSetup', 'wireAccess'
+
+    // Attivazione automatica della modalità Fullscreen al primo tocco
+    document.addEventListener('click', () => {
+        if (!document.fullscreenElement && document.documentElement.requestFullscreen) {
+            document.documentElement.requestFullscreen().catch(() => {});
+        }
+    }, { once: true });
+
+    function openKeyboardModal(target = 'otp') {
+        keyboardTargetMode = target;
+        
+        if (target === 'wireSetup') {
+            maxInputLength = 10;
+            currentInputCode = document.getElementById('wireAccessPasswordInput').value;
+        } else if (target === 'wireAccess') {
+            maxInputLength = 10;
+            currentInputCode = document.getElementById('wireAccessInput').value;
+        } else {
+            if (currentMode === 'checkpoint') {
+                maxInputLength = 4;
+            } else {
+                maxInputLength = 6;
+            }
+            currentInputCode = '';
+        }
+
+        document.getElementById('keyboardModal').classList.add('active');
+        isDisplayingError = false;
+        const display = document.getElementById('keyboardDisplay');
+        if (display) display.classList.remove('display-error');
+        updateKeyboardDisplay();
+    }
+
+    function closeKeyboardModal() {
+        document.getElementById('keyboardModal').classList.remove('active');
+    }
 
     function updateKeyboardDisplay() {
         const display = document.getElementById('keyboardDisplay');
-        if (display) {
+        if (display && !isDisplayingError) {
             display.innerText = currentInputCode;
         }
     }
 
+    function showKeyboardError(msg) {
+        const display = document.getElementById('keyboardDisplay');
+        if (!display) return;
+        
+        isDisplayingError = true;
+        display.innerText = msg;
+        display.classList.add('display-error');
+
+        setTimeout(() => {
+            display.classList.remove('display-error');
+            isDisplayingError = false;
+            currentInputCode = '';
+            updateKeyboardDisplay();
+        }, 2000);
+    }
+
     function appendKey(char) {
+        if (isDisplayingError) return;
         if (currentInputCode.length < maxInputLength) {
             currentInputCode += char;
             updateKeyboardDisplay();
@@ -677,6 +804,7 @@
     }
 
     function deleteKey() {
+        if (isDisplayingError) return;
         if (currentInputCode.length > 0) {
             currentInputCode = currentInputCode.slice(0, -1);
             updateKeyboardDisplay();
@@ -684,8 +812,24 @@
     }
 
     function clearKey() {
+        isDisplayingError = false;
+        const display = document.getElementById('keyboardDisplay');
+        if (display) display.classList.remove('display-error');
         currentInputCode = '';
         updateKeyboardDisplay();
+    }
+
+    function handleVirtualKeyboardSubmit() {
+        if (keyboardTargetMode === 'wireSetup') {
+            document.getElementById('wireAccessPasswordInput').value = currentInputCode;
+            closeKeyboardModal();
+        } else if (keyboardTargetMode === 'wireAccess') {
+            document.getElementById('wireAccessInput').value = currentInputCode;
+            closeKeyboardModal();
+            verifyWireAccess();
+        } else {
+            handleOtpSubmit();
+        }
     }
 
     function startLoopingAlarm() {
@@ -779,6 +923,7 @@
         if (cpPresidioInterval) clearInterval(cpPresidioInterval);
         stopLoopingAlarm();
         releaseWakeLock();
+        closeKeyboardModal();
 
         currentMode = '';
         activeDomFaction = null;
@@ -821,7 +966,7 @@
         document.getElementById('errorMessage').innerText = '';
         document.getElementById('wireAccessInput').value = '';
         document.getElementById('wireAccessPasswordInput').value = '';
-        updateKeyboardDisplay();
+        clearKey();
     }
 
     function setupMode(mode) {
@@ -1026,6 +1171,7 @@
                 document.getElementById('timerDisplay').classList.add('timer-expired');
                 document.getElementById('instructionText').innerText = 'MANDATO SCADUTO: Trasferimento dati fallito.';
                 document.getElementById('unlockSection').style.display = 'none';
+                closeKeyboardModal();
                 triggerTimeoutAlert("TEMPO SCADUTO");
                 return;
             }
@@ -1055,6 +1201,7 @@
                     document.getElementById('progressText').innerText = 'DOWNLOAD: 100%';
                     document.getElementById('instructionText').innerText = 'DOWNLOAD COMPLETATO! Tutti i dati sono stati estratti con successo.';
                     document.getElementById('unlockSection').style.display = 'none';
+                    closeKeyboardModal();
                 }
             }
         }, 1000);
@@ -1091,6 +1238,7 @@
                 document.getElementById('timerDisplay').classList.add('timer-expired');
                 document.getElementById('instructionText').innerText = 'DETONAZIONE! L\'obiettivo e stato distrutto.';
                 document.getElementById('unlockSection').style.display = 'none';
+                closeKeyboardModal();
                 triggerTimeoutAlert("TEMPO SCADUTO");
             }
         }, 1000);
@@ -1135,6 +1283,7 @@
                 document.getElementById('wireAccessSection').style.display = 'none';
                 document.getElementById('wireControls').style.display = 'none';
                 document.getElementById('cpHoldSection').style.display = 'none';
+                closeKeyboardModal();
                 triggerTimeoutAlert("TEMPO SCADUTO");
             }
         }, 1000);
@@ -1207,9 +1356,8 @@
     }
 
     async function handleOtpSubmit() {
+        if (isDisplayingError) return;
         const userInput = currentInputCode.trim().toUpperCase();
-        const errorDiv = document.getElementById('errorMessage');
-        errorDiv.innerText = '';
 
         if (currentMode === 'checkpoint') {
             let matchedIndex = -1;
@@ -1226,6 +1374,7 @@
                 codeElem.innerText = cpTargetCodes[matchedIndex];
                 codeElem.style.color = 'var(--green-glow)';
                 clearKey();
+                closeKeyboardModal();
 
                 if (cpFoundCodes[0] && cpFoundCodes[1] && cpFoundCodes[2]) {
                     document.getElementById('unlockSection').style.display = 'none';
@@ -1236,8 +1385,7 @@
                     document.getElementById('instructionText').innerText = `CODICE ${matchedIndex + 1} CORRETTO! Inserisci i rimanenti.`;
                 }
             } else {
-                errorDiv.innerText = 'CODICE CHECKPOINT ERRATO O GIA INSERITO!';
-                setTimeout(() => { errorDiv.innerText = ''; }, 3000);
+                showKeyboardError('CODICE ERRATO');
             }
             return;
         }
@@ -1246,10 +1394,10 @@
             const validOtp = await generateTOTP(SECRET_BASE32);
             if (userInput === validOtp) {
                 clearKey();
+                closeKeyboardModal();
                 
                 if (currentMode === 'extraction') {
                     document.getElementById('unlockSection').style.display = 'none';
-                    errorDiv.innerText = '';
                     
                     if (!checkpoint33Passed) {
                         checkpoint33Passed = true;
@@ -1268,10 +1416,10 @@
                     document.getElementById('unlockSection').style.display = 'none';
                 }
             } else {
-                errorDiv.innerText = 'CODICE OTP ERRATO O SCADUTO!';
+                showKeyboardError('CODICE ERRATO');
             }
         } catch (e) {
-            errorDiv.innerText = 'Errore nel controllo OTP.';
+            showKeyboardError('ERRORE TOTP');
             console.error(e);
         }
     }
