@@ -1233,34 +1233,5 @@
     initApp();
 </script>
 
-<div id="debug-pwa" style="position:fixed; bottom:10px; left:10px; background:rgba(0,0,0,0.8); color:#fff; padding:10px; z-index:9999; font-family:monospace; font-size:12px;">
-  Verifica PWA in corso...
-</div>
-
-<script>
-  const debugDiv = document.getElementById('debug-pwa');
-
-  // 1. Controllo Service Worker
-  if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.ready.then(() => {
-      debugDiv.innerHTML += '<br>✅ Service Worker: Attivo';
-    }).catch(err => {
-      debugDiv.innerHTML += '<br>❌ SW Errore: ' + err;
-    });
-  } else {
-    debugDiv.innerHTML += '<br>❌ Service Worker non supportato';
-  }
-
-  // 2. Controllo Evento Installazione
-  window.addEventListener('beforeinstallprompt', (e) => {
-    e.preventDefault();
-    debugDiv.innerHTML += '<br>✅ Evento Installazione PRONTO! <button id="btn-force-install" style="background:#0f0;color:#000;font-weight:bold;">INSTALLA ORA</button>';
-    
-    document.getElementById('btn-force-install').addEventListener('click', () => {
-      e.prompt();
-    });
-  });
-</script>
-
 </body>
 </html>
