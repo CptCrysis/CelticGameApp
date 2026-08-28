@@ -1,4 +1,4 @@
-const CACHE_NAME = 'celticgameapp-v2'; // Incrementato a v2 per forzare il refresh
+const CACHE_NAME = 'celticgameapp-v20'; // Incrementato a v2 per forzare il refresh
 
 const urlsToCache = [
   './',
