@@ -1,4 +1,4 @@
-const CACHE_NAME = 'celticgameapp-v25';
+const CACHE_NAME = 'celticgameapp-v26';
 
 const urlsToCache = [
   './',
