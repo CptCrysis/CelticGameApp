@@ -220,7 +220,6 @@
             width: 100%;
         }
 
-        /* ALTEZZA E ALLINEAMENTO UNIFORME PER INPUT E SELECT */
         input, .custom-select-trigger {
             height: clamp(36px, 4.8dvh, 42px);
             box-sizing: border-box;
@@ -408,7 +407,6 @@
             letter-spacing: 1px;
         }
 
-        /* PERFETTA DISTRIBUZIONE E ALLINEAMENTO MODALITÀ DOMINIO */
         .domination-score {
             display: flex;
             justify-content: space-between;
@@ -459,7 +457,7 @@
             box-shadow: 0 0 35px rgba(0, 255, 102, 0.25);
             padding: clamp(12px, 2.2dvh, 18px);
             width: 92%;
-            max-width: 460px;
+            max-width: 480px;
             max-height: 96dvh;
             position: relative;
             display: flex;
@@ -467,7 +465,6 @@
             justify-content: center;
         }
 
-        /* ALTEZZA FISSA: EVITA L'ESPANSIONE DINAMICA DEL DISPLAY QUANDO SI SCRIVE */
         .keyboard-input-display {
             background-color: var(--screen-bg);
             border: 2px solid var(--green-glow);
@@ -497,33 +494,40 @@
             letter-spacing: 1px !important;
         }
 
-        .virtual-keyboard {
-            display: flex;
-            gap: clamp(6px, 1.5vw, 10px);
-            margin: clamp(2px, 0.5dvh, 6px) 0;
+.virtual-keyboard {
+            display: grid;
+            grid-template-columns: 2fr 1.2fr;
+            gap: 45px;
+            margin: 8px 0;
+            padding: 4px;
+            align-items: start; /* Allinea in alto le sezioni */
         }
 
-        .keyboard-column {
-            display: flex;
-            flex-direction: column;
-            gap: clamp(3px, 0.6dvh, 5px);
-            flex: 1;
-            justify-content: space-between;
+        .keyboard-letters {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
         }
 
-        .key-row {
-            display: flex;
-            gap: clamp(3px, 0.6vw, 5px);
-            justify-content: center;
+        .keyboard-numbers {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            /* Rimosso align-self: center per consentire l'allineamento in alto con le lettere */
+            padding-left: 0;
         }
-
         .key-btn {
-            flex: 1;
-            padding: clamp(6px, 1.3dvh, 11px) 2px;
-            font-size: clamp(0.78rem, 1.8dvh, 0.98rem);
+            width: 100%;
+            height: clamp(44px, 6.5dvh, 54px);
+            padding: 0;
+            font-size: clamp(1rem, 2.2dvh, 1.25rem);
             margin: 0;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             min-width: 0;
-            border-radius: 4px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
         }
 
         .close-modal-btn {
@@ -842,69 +846,56 @@
         
         <div id="keyboardDisplay" class="keyboard-input-display seven-segment"></div>
 
+      <!-- TASTIERA ARMONICA CORRETTA E ALLINEATA -->
         <div class="virtual-keyboard">
-            <!-- LETTERE A SINISTRA -->
-            <div class="keyboard-column">
-                <div class="key-row">
-                    <button type="button" class="key-btn" onclick="appendKey('A')">A</button>
-                    <button type="button" class="key-btn" onclick="appendKey('B')">B</button>
-                    <button type="button" class="key-btn" onclick="appendKey('C')">C</button>
-                    <button type="button" class="key-btn" onclick="appendKey('D')">D</button>
-                </div>
-                <div class="key-row">
-                    <button type="button" class="key-btn" onclick="appendKey('E')">E</button>
-                    <button type="button" class="key-btn" onclick="appendKey('F')">F</button>
-                    <button type="button" class="key-btn" onclick="appendKey('G')">G</button>
-                    <button type="button" class="key-btn" onclick="appendKey('H')">H</button>
-                </div>
-                <div class="key-row">
-                    <button type="button" class="key-btn" onclick="appendKey('J')">J</button>
-                    <button type="button" class="key-btn" onclick="appendKey('K')">K</button>
-                    <button type="button" class="key-btn" onclick="appendKey('L')">L</button>
-                    <button type="button" class="key-btn" onclick="appendKey('M')">M</button>
-                </div>
-                <div class="key-row">
-                    <button type="button" class="key-btn" onclick="appendKey('N')">N</button>
-                    <button type="button" class="key-btn" onclick="appendKey('P')">P</button>
-                    <button type="button" class="key-btn" onclick="appendKey('Q')">Q</button>
-                    <button type="button" class="key-btn" onclick="appendKey('R')">R</button>
-                </div>
-                <div class="key-row">
-                    <button type="button" class="key-btn" onclick="appendKey('S')">S</button>
-                    <button type="button" class="key-btn" onclick="appendKey('T')">T</button>
-                    <button type="button" class="key-btn" onclick="appendKey('U')">U</button>
-                    <button type="button" class="key-btn" onclick="appendKey('V')">V</button>
-                </div>
-                <div class="key-row">
-                    <button type="button" class="key-btn" onclick="appendKey('W')">W</button>
-                    <button type="button" class="key-btn" onclick="appendKey('X')">X</button>
-                    <button type="button" class="key-btn" onclick="appendKey('Y')">Y</button>
-                    <button type="button" class="key-btn" onclick="appendKey('Z')">Z</button>
-                </div>
+            <!-- BLOCCO LETTERE (SINISTRA) - 26 lettere (ultime due Y e Z centrate nella griglia a 4 colonne) -->
+            <div class="keyboard-letters">
+                <button type="button" class="key-btn" onclick="appendKey('A')">A</button>
+                <button type="button" class="key-btn" onclick="appendKey('B')">B</button>
+                <button type="button" class="key-btn" onclick="appendKey('C')">C</button>
+                <button type="button" class="key-btn" onclick="appendKey('D')">D</button>
+                <button type="button" class="key-btn" onclick="appendKey('E')">E</button>
+                <button type="button" class="key-btn" onclick="appendKey('F')">F</button>
+                <button type="button" class="key-btn" onclick="appendKey('G')">G</button>
+                <button type="button" class="key-btn" onclick="appendKey('H')">H</button>
+                <button type="button" class="key-btn" onclick="appendKey('I')">I</button>
+                <button type="button" class="key-btn" onclick="appendKey('J')">J</button>
+                <button type="button" class="key-btn" onclick="appendKey('K')">K</button>
+                <button type="button" class="key-btn" onclick="appendKey('L')">L</button>
+                <button type="button" class="key-btn" onclick="appendKey('M')">M</button>
+                <button type="button" class="key-btn" onclick="appendKey('N')">N</button>
+                <button type="button" class="key-btn" onclick="appendKey('O')">O</button>
+                <button type="button" class="key-btn" onclick="appendKey('P')">P</button>
+                <button type="button" class="key-btn" onclick="appendKey('Q')">Q</button>
+                <button type="button" class="key-btn" onclick="appendKey('R')">R</button>
+                <button type="button" class="key-btn" onclick="appendKey('S')">S</button>
+                <button type="button" class="key-btn" onclick="appendKey('T')">T</button>
+                <button type="button" class="key-btn" onclick="appendKey('U')">U</button>
+                <button type="button" class="key-btn" onclick="appendKey('V')">V</button>
+                <button type="button" class="key-btn" onclick="appendKey('W')">W</button>
+                <button type="button" class="key-btn" onclick="appendKey('X')">X</button>
+                <!-- Cella vuota per bilanciare la prima colonna della 7ª riga -->
+                <div></div>
+                <button type="button" class="key-btn" onclick="appendKey('Y')">Y</button>
+                <button type="button" class="key-btn" onclick="appendKey('Z')">Z</button>
+                <!-- Cella vuota per bilanciare l'ultima colonna della 7ª riga -->
+                <div></div>
             </div>
-
-            <!-- NUMERI A DESTRA -->
-            <div class="keyboard-column">
-                <div class="key-row">
-                    <button type="button" class="key-btn" onclick="appendKey('1')">1</button>
-                    <button type="button" class="key-btn" onclick="appendKey('2')">2</button>
-                    <button type="button" class="key-btn" onclick="appendKey('3')">3</button>
-                </div>
-                <div class="key-row">
-                    <button type="button" class="key-btn" onclick="appendKey('4')">4</button>
-                    <button type="button" class="key-btn" onclick="appendKey('5')">5</button>
-                    <button type="button" class="key-btn" onclick="appendKey('6')">6</button>
-                </div>
-                <div class="key-row">
-                    <button type="button" class="key-btn" onclick="appendKey('7')">7</button>
-                    <button type="button" class="key-btn" onclick="appendKey('8')">8</button>
-                    <button type="button" class="key-btn" onclick="appendKey('9')">9</button>
-                </div>
-                <div class="key-row">
-                    <button type="button" class="key-btn btn-red" onclick="deleteKey()">DEL</button>
-                    <button type="button" class="key-btn" onclick="appendKey('0')">0</button>
-                    <button type="button" class="key-btn btn-blue" onclick="clearKey()">CLR</button>
-                </div>
+            <!-- BLOCCO NUMERI (DESTRA) ALLINEATO IN ALTO CON DEL E CLR VERTICALI SOTTO -->
+            <div class="keyboard-numbers">
+                <button type="button" class="key-btn" onclick="appendKey('1')">1</button>
+                <button type="button" class="key-btn" onclick="appendKey('2')">2</button>
+                <button type="button" class="key-btn" onclick="appendKey('3')">3</button>
+                <button type="button" class="key-btn" onclick="appendKey('4')">4</button>
+                <button type="button" class="key-btn" onclick="appendKey('5')">5</button>
+                <button type="button" class="key-btn" onclick="appendKey('6')">6</button>
+                <button type="button" class="key-btn" onclick="appendKey('7')">7</button>
+                <button type="button" class="key-btn" onclick="appendKey('8')">8</button>
+                <button type="button" class="key-btn" onclick="appendKey('9')">9</button>
+                <button type="button" class="key-btn" onclick="appendKey('0')">0</button>
+                <!-- DEL e CLR allineati verticalmente sotto i numeri -->
+                <button type="button" class="key-btn btn-red" onclick="deleteKey()" style="grid-column: span 2;">DEL</button>
+                <button type="button" class="key-btn btn-blue" onclick="clearKey()" style="grid-column: span 2;">CLR</button>
             </div>
         </div>
 
