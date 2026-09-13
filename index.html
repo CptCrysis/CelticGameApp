@@ -181,6 +181,7 @@
 
         .setup-group {
             text-align: left;
+            position: relative;
         }
 
         .setup-group label {
@@ -190,7 +191,89 @@
             display: block;
         }
 
-        input, select {
+        .custom-select-wrapper {
+            position: relative;
+            width: 100%;
+            margin: 2px 0;
+            box-sizing: border-box;
+        }
+
+        .custom-select-trigger {
+            width: 100%;
+            padding: 8px 10px;
+            font-size: 0.9rem;
+            font-family: 'Share Tech Mono', monospace;
+            background-color: #080d09;
+            color: var(--green-glow);
+            border: 1px solid var(--panel-border);
+            border-radius: 4px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            box-sizing: border-box;
+            user-select: none;
+        }
+
+        .custom-select-trigger:active, .custom-select-wrapper.open .custom-select-trigger {
+            border-color: var(--green-glow);
+            background-color: #0e1a10;
+            box-shadow: 0 0 6px rgba(0, 255, 102, 0.2);
+        }
+
+        .custom-select-trigger .arrow {
+            font-size: 0.75rem;
+            color: var(--green-dim);
+            transition: transform 0.2s ease;
+        }
+
+        .custom-select-wrapper.open .arrow {
+            transform: rotate(180deg);
+            color: var(--green-glow);
+        }
+
+        .custom-select-options {
+            display: none;
+            position: absolute;
+            top: calc(100% + 2px);
+            left: 0;
+            width: 100%;
+            background-color: #0b120c;
+            border: 1px solid var(--green-glow);
+            border-radius: 4px;
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.95);
+            z-index: 1000;
+            max-height: 160px;
+            overflow-y: auto;
+            box-sizing: border-box;
+        }
+
+        .custom-select-wrapper.open .custom-select-options {
+            display: block;
+        }
+
+        .custom-option {
+            padding: 8px;
+            font-size: 0.85rem;
+            font-family: 'Share Tech Mono', monospace;
+            color: #a3c2aa;
+            text-align: center;
+            cursor: pointer;
+            border-bottom: 1px dashed #1e3a24;
+            transition: background 0.15s ease, color 0.15s ease;
+        }
+
+        .custom-option:last-child {
+            border-bottom: none;
+        }
+
+        .custom-option:hover, .custom-option.selected {
+            background-color: #142817;
+            color: var(--green-glow);
+            font-weight: bold;
+        }
+
+        input {
             width: 100%;
             padding: 8px;
             margin: 2px 0;
@@ -482,60 +565,95 @@
         <div class="setup-grid">
             <div class="setup-group">
                 <label>TEMPO TOTALE PARTITA:</label>
-                <select id="timerSelect">
-                    <option value="10">10 Minuti</option>
-                    <option value="15">15 Minuti</option>
-                    <option value="20">20 Minuti</option>
-                    <option value="30" selected>30 Minuti</option>
-                    <option value="45">45 Minuti</option>
-                    <option value="60">60 Minuti</option>
-                </select>
+                <div class="custom-select-wrapper" id="timerSelectWrapper">
+                    <div class="custom-select-trigger" onclick="toggleCustomSelect('timerSelectWrapper', event)">
+                        <span>30 Minuti</span>
+                        <span class="arrow">▼</span>
+                    </div>
+                    <div class="custom-select-options">
+                        <div class="custom-option" data-value="10" onclick="selectCustomOption('timerSelectWrapper', '10', '10 Minuti')">10 Minuti</div>
+                        <div class="custom-option" data-value="15" onclick="selectCustomOption('timerSelectWrapper', '15', '15 Minuti')">15 Minuti</div>
+                        <div class="custom-option" data-value="20" onclick="selectCustomOption('timerSelectWrapper', '20', '20 Minuti')">20 Minuti</div>
+                        <div class="custom-option selected" data-value="30" onclick="selectCustomOption('timerSelectWrapper', '30', '30 Minuti')">30 Minuti</div>
+                        <div class="custom-option" data-value="45" onclick="selectCustomOption('timerSelectWrapper', '45', '45 Minuti')">45 Minuti</div>
+                        <div class="custom-option" data-value="60" onclick="selectCustomOption('timerSelectWrapper', '60', '60 Minuti')">60 Minuti</div>
+                    </div>
+                    <input type="hidden" id="timerSelect" value="30">
+                </div>
             </div>
 
             <div id="extractionSetupOptions" class="setup-group" style="display: none;">
                 <div style="margin-bottom: 8px;">
                     <label>DURATA DOWNLOAD:</label>
-                    <select id="extractionDownloadSelect">
-                        <option value="2">2 Minuti</option>
-                        <option value="3">3 Minuti</option>
-                        <option value="5" selected>5 Minuti</option>
-                        <option value="10">10 Minuti</option>
-                        <option value="15">15 Minuti</option>
-                        <option value="20">20 Minuti</option>
-                    </select>
+                    <div class="custom-select-wrapper" id="extractionDownloadWrapper">
+                        <div class="custom-select-trigger" onclick="toggleCustomSelect('extractionDownloadWrapper', event)">
+                            <span>5 Minuti</span>
+                            <span class="arrow">▼</span>
+                        </div>
+                        <div class="custom-select-options">
+                            <div class="custom-option" data-value="2" onclick="selectCustomOption('extractionDownloadWrapper', '2', '2 Minuti')">2 Minuti</div>
+                            <div class="custom-option" data-value="3" onclick="selectCustomOption('extractionDownloadWrapper', '3', '3 Minuti')">3 Minuti</div>
+                            <div class="custom-option selected" data-value="5" onclick="selectCustomOption('extractionDownloadWrapper', '5', '5 Minuti')">5 Minuti</div>
+                            <div class="custom-option" data-value="10" onclick="selectCustomOption('extractionDownloadWrapper', '10', '10 Minuti')">10 Minuti</div>
+                            <div class="custom-option" data-value="15" onclick="selectCustomOption('extractionDownloadWrapper', '15', '15 Minuti')">15 Minuti</div>
+                            <div class="custom-option" data-value="20" onclick="selectCustomOption('extractionDownloadWrapper', '20', '20 Minuti')">20 Minuti</div>
+                        </div>
+                        <input type="hidden" id="extractionDownloadSelect" value="5">
+                    </div>
                 </div>
                 <div>
                     <label>CODICI INTERMEDI:</label>
-                    <select id="extractionCodesSelect" onchange="updateExtractionMasterCodes()">
-                        <option value="0">0 (Solo avvio)</option>
-                        <option value="1">1 Codice Intermedio</option>
-                        <option value="2" selected>2 Codici Intermedi</option>
-                        <option value="3">3 Codici Intermedi</option>
-                        <option value="4">4 Codici Intermedi</option>
-                    </select>
+                    <div class="custom-select-wrapper" id="extractionCodesWrapper">
+                        <div class="custom-select-trigger" onclick="toggleCustomSelect('extractionCodesWrapper', event)">
+                            <span>2 Codici Intermedi</span>
+                            <span class="arrow">▼</span>
+                        </div>
+                        <div class="custom-select-options">
+                            <div class="custom-option" data-value="0" onclick="selectCustomOption('extractionCodesWrapper', '0', '0 (Nessun blocco)')">0 (Nessun blocco)</div>
+                            <div class="custom-option" data-value="1" onclick="selectCustomOption('extractionCodesWrapper', '1', '1 Codice Intermedio')">1 Codice Intermedio</div>
+                            <div class="custom-option selected" data-value="2" onclick="selectCustomOption('extractionCodesWrapper', '2', '2 Codici Intermedi')">2 Codici Intermedi</div>
+                            <div class="custom-option" data-value="3" onclick="selectCustomOption('extractionCodesWrapper', '3', '3 Codici Intermedi')">3 Codici Intermedi</div>
+                            <div class="custom-option" data-value="4" onclick="selectCustomOption('extractionCodesWrapper', '4', '4 Codici Intermedi')">4 Codici Intermedi</div>
+                        </div>
+                        <input type="hidden" id="extractionCodesSelect" value="2">
+                    </div>
                 </div>
             </div>
 
             <div id="cpSetupOptions" class="setup-group" style="display: none;">
                 <div style="margin-bottom: 8px;">
                     <label>DURATA PRESIDIO:</label>
-                    <select id="cpDurationSelect">
-                        <option value="5" selected>5 Minuti</option>
-                        <option value="10">10 Minuti</option>
-                        <option value="15">15 Minuti</option>
-                        <option value="20">20 Minuti</option>
-                        <option value="30">30 Minuti</option>
-                    </select>
+                    <div class="custom-select-wrapper" id="cpDurationWrapper">
+                        <div class="custom-select-trigger" onclick="toggleCustomSelect('cpDurationWrapper', event)">
+                            <span>5 Minuti</span>
+                            <span class="arrow">▼</span>
+                        </div>
+                        <div class="custom-select-options">
+                            <div class="custom-option selected" data-value="5" onclick="selectCustomOption('cpDurationWrapper', '5', '5 Minuti')">5 Minuti</div>
+                            <div class="custom-option" data-value="10" onclick="selectCustomOption('cpDurationWrapper', '10', '10 Minuti')">10 Minuti</div>
+                            <div class="custom-option" data-value="15" onclick="selectCustomOption('cpDurationWrapper', '15', '15 Minuti')">15 Minuti</div>
+                            <div class="custom-option" data-value="20" onclick="selectCustomOption('cpDurationWrapper', '20', '20 Minuti')">20 Minuti</div>
+                            <div class="custom-option" data-value="30" onclick="selectCustomOption('cpDurationWrapper', '30', '30 Minuti')">30 Minuti</div>
+                        </div>
+                        <input type="hidden" id="cpDurationSelect" value="5">
+                    </div>
                 </div>
                 <div>
                     <label>NUMERO CODICI:</label>
-                    <select id="cpCodesSelect" onchange="updateCpMasterCodes()">
-                        <option value="1">1 Codice</option>
-                        <option value="2">2 Codici</option>
-                        <option value="3" selected>3 Codici</option>
-                        <option value="4">4 Codici</option>
-                        <option value="5">5 Codici</option>
-                    </select>
+                    <div class="custom-select-wrapper" id="cpCodesWrapper">
+                        <div class="custom-select-trigger" onclick="toggleCustomSelect('cpCodesWrapper', event)">
+                            <span>3 Codici</span>
+                            <span class="arrow">▼</span>
+                        </div>
+                        <div class="custom-select-options">
+                            <div class="custom-option" data-value="1" onclick="selectCustomOption('cpCodesWrapper', '1', '1 Codice')">1 Codice</div>
+                            <div class="custom-option" data-value="2" onclick="selectCustomOption('cpCodesWrapper', '2', '2 Codici')">2 Codici</div>
+                            <div class="custom-option selected" data-value="3" onclick="selectCustomOption('cpCodesWrapper', '3', '3 Codici')">3 Codici</div>
+                            <div class="custom-option" data-value="4" onclick="selectCustomOption('cpCodesWrapper', '4', '4 Codici')">4 Codici</div>
+                            <div class="custom-option" data-value="5" onclick="selectCustomOption('cpCodesWrapper', '5', '5 Codici')">5 Codici</div>
+                        </div>
+                        <input type="hidden" id="cpCodesSelect" value="3">
+                    </div>
                 </div>
             </div>
         </div>
@@ -552,21 +670,35 @@
             </div>
             <div class="setup-group">
                 <label>CAVO DISINNESCO:</label>
-                <select id="correctWireSelect">
-                    <option value="red">Rosso</option>
-                    <option value="blue" selected>Blu</option>
-                    <option value="green">Verde</option>
-                    <option value="yellow">Giallo</option>
-                </select>
+                <div class="custom-select-wrapper" id="correctWireWrapper">
+                    <div class="custom-select-trigger" onclick="toggleCustomSelect('correctWireWrapper', event)">
+                        <span>Blu</span>
+                        <span class="arrow">▼</span>
+                    </div>
+                    <div class="custom-select-options">
+                        <div class="custom-option" data-value="red" onclick="selectCustomOption('correctWireWrapper', 'red', 'Rosso')">Rosso</div>
+                        <div class="custom-option selected" data-value="blue" onclick="selectCustomOption('correctWireWrapper', 'blue', 'Blu')">Blu</div>
+                        <div class="custom-option" data-value="green" onclick="selectCustomOption('correctWireWrapper', 'green', 'Verde')">Verde</div>
+                        <div class="custom-option" data-value="yellow" onclick="selectCustomOption('correctWireWrapper', 'yellow', 'Giallo')">Giallo</div>
+                    </div>
+                    <input type="hidden" id="correctWireSelect" value="blue">
+                </div>
             </div>
             <div class="setup-group">
                 <label>CAVO ESPLOSIVO (BOOM):</label>
-                <select id="boomWireSelect">
-                    <option value="red" selected>Rosso</option>
-                    <option value="blue">Blu</option>
-                    <option value="green">Verde</option>
-                    <option value="yellow">Giallo</option>
-                </select>
+                <div class="custom-select-wrapper" id="boomWireWrapper">
+                    <div class="custom-select-trigger" onclick="toggleCustomSelect('boomWireWrapper', event)">
+                        <span>Rosso</span>
+                        <span class="arrow">▼</span>
+                    </div>
+                    <div class="custom-select-options">
+                        <div class="custom-option selected" data-value="red" onclick="selectCustomOption('boomWireWrapper', 'red', 'Rosso')">Rosso</div>
+                        <div class="custom-option" data-value="blue" onclick="selectCustomOption('boomWireWrapper', 'blue', 'Blu')">Blu</div>
+                        <div class="custom-option" data-value="green" onclick="selectCustomOption('boomWireWrapper', 'green', 'Verde')">Verde</div>
+                        <div class="custom-option" data-value="yellow" onclick="selectCustomOption('boomWireWrapper', 'yellow', 'Giallo')">Giallo</div>
+                    </div>
+                    <input type="hidden" id="boomWireSelect" value="red">
+                </div>
             </div>
         </div>
 
@@ -737,6 +869,8 @@
     let domTargetSeconds = 0;
 
     let extractionDownloadMinutes = 5;
+    let extractionStartCode = '';
+    let extractionStarted = false;
     let extractionIntermediateCodes = [];
     let extractionCheckpoints = [];
     let extractionNextCodeIndex = 0;
@@ -763,11 +897,54 @@
     let isDisplayingError = false;
     let keyboardTargetMode = 'code';
 
-    document.addEventListener('click', () => {
+    function toggleCustomSelect(wrapperId, event) {
+        if (event) event.stopPropagation();
+        const wrapper = document.getElementById(wrapperId);
+        const isOpen = wrapper.classList.contains('open');
+        
+        document.querySelectorAll('.custom-select-wrapper').forEach(w => w.classList.remove('open'));
+        
+        if (!isOpen) {
+            wrapper.classList.add('open');
+        }
+    }
+
+    function selectCustomOption(wrapperId, val, text) {
+        const wrapper = document.getElementById(wrapperId);
+        if (!wrapper) return;
+        
+        const hiddenInput = wrapper.querySelector('input[type="hidden"]');
+        const triggerVal = wrapper.querySelector('.custom-select-trigger span:first-child');
+        
+        if (hiddenInput) hiddenInput.value = val;
+        if (triggerVal) triggerVal.innerText = text;
+        
+        wrapper.querySelectorAll('.custom-option').forEach(opt => {
+            if (opt.getAttribute('data-value') === String(val)) {
+                opt.classList.add('selected');
+            } else {
+                opt.classList.remove('selected');
+            }
+        });
+        
+        wrapper.classList.remove('open');
+
+        if (wrapperId === 'extractionCodesWrapper') {
+            updateExtractionMasterCodes();
+        } else if (wrapperId === 'cpCodesWrapper') {
+            updateCpMasterCodes();
+        }
+    }
+
+    document.addEventListener('click', (e) => {
+        if (!e.target.closest('.custom-select-wrapper')) {
+            document.querySelectorAll('.custom-select-wrapper').forEach(w => w.classList.remove('open'));
+        }
+
         if (!document.fullscreenElement && document.documentElement.requestFullscreen) {
             document.documentElement.requestFullscreen().catch(() => {});
         }
-    }, { once: true });
+    });
 
     function openKeyboardModal(target = 'code') {
         keyboardTargetMode = target;
@@ -851,6 +1028,33 @@
             verifyWireAccess();
         } else {
             handleCodeSubmit();
+        }
+    }
+
+    function playPresidioStartSound() {
+        try {
+            const AudioContext = window.AudioContext || window.webkitAudioContext;
+            if (!AudioContext) return;
+            const ctx = new AudioContext();
+
+            const freqs = [520, 780, 1040];
+            freqs.forEach((freq, idx) => {
+                setTimeout(() => {
+                    if (!ctx) return;
+                    const osc = ctx.createOscillator();
+                    const gain = ctx.createGain();
+                    osc.type = 'sawtooth';
+                    osc.frequency.value = freq;
+                    gain.gain.setValueAtTime(0.25, ctx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.15);
+                    osc.connect(gain);
+                    gain.connect(ctx.destination);
+                    osc.start();
+                    osc.stop(ctx.currentTime + 0.15);
+                }, idx * 120);
+            });
+        } catch (e) {
+            console.warn('Audio non riproducibile:', e);
         }
     }
 
@@ -940,10 +1144,13 @@
 
     function updateExtractionMasterCodes() {
         const numIntermediate = parseInt(document.getElementById('extractionCodesSelect').value, 10);
+        extractionStartCode = generateAlphanumeric4();
         extractionIntermediateCodes = [];
         extractionCheckpoints = [];
 
         const items = [];
+        items.push({ label: 'AVVIO', code: extractionStartCode });
+
         for (let i = 1; i <= numIntermediate; i++) {
             const pct = Math.floor((i * 100) / (numIntermediate + 1));
             const code = generateAlphanumeric4();
@@ -952,11 +1159,7 @@
             items.push({ label: `INT ${i} (${pct}%)`, code: code });
         }
 
-        if (items.length > 0) {
-            renderMasterCodes(items);
-        } else {
-            document.getElementById('masterCodesDisplay').style.display = 'none';
-        }
+        renderMasterCodes(items);
     }
 
     function updateCpMasterCodes() {
@@ -1011,6 +1214,8 @@
 
         currentMode = '';
         activeDomFaction = null;
+        extractionStartCode = '';
+        extractionStarted = false;
         extractionPaused = false;
         extractionNextCodeIndex = 0;
         activeDownloadSeconds = 0;
@@ -1080,7 +1285,7 @@
             document.getElementById('instructionText').innerText = 'Imposta il tempo di possesso totale per la vittoria di una fazione.';
         } else if (mode === 'extraction') {
             document.getElementById('modeTitle').innerText = 'MODALITÀ ESTRAZIONE DATI';
-            document.getElementById('instructionText').innerText = 'Imposta i parametri di download e segnati i codici intermedi per lo sblocco.';
+            document.getElementById('instructionText').innerText = 'Imposta i parametri. Annota il codice di avvio e gli eventuali codici intermedi.';
             document.getElementById('extractionSetupOptions').style.display = 'block';
             updateExtractionMasterCodes();
         } else if (mode === 'snd') {
@@ -1129,12 +1334,19 @@
             totalSeconds = maxSeconds;
             activeDownloadSeconds = 0;
             extractionNextCodeIndex = 0;
-            extractionPaused = false;
+            extractionStarted = false;
+            extractionPaused = true;
 
             document.getElementById('timerDisplay').style.display = 'block';
             document.getElementById('progressContainer').style.display = 'block';
             document.getElementById('progressText').style.display = 'block';
-            document.getElementById('instructionText').innerText = 'Download avviato. Il trasferimento dati è in corso...';
+            document.getElementById('progressText').innerText = 'DOWNLOAD: 0% (IN ATTESA)';
+            document.getElementById('unlockSection').style.display = 'block';
+            document.getElementById('instructionText').innerText = 'DOWNLOAD IN ATTESA: Inserisci il codice di avvio per iniziare l\'estrazione dati.';
+            
+            maxInputLength = 4;
+            clearKey();
+
             startExtractionTimer();
         }
         else if (currentMode === 'snd') {
@@ -1274,7 +1486,7 @@
                 return;
             }
 
-            if (!extractionPaused) {
+            if (extractionStarted && !extractionPaused) {
                 activeDownloadSeconds++;
                 
                 let percent = Math.floor((activeDownloadSeconds / downloadDurationSeconds) * 100);
@@ -1456,6 +1668,20 @@
         }
 
         if (currentMode === 'extraction') {
+            if (!extractionStarted) {
+                if (userInput === extractionStartCode) {
+                    clearKey();
+                    closeKeyboardModal();
+                    document.getElementById('unlockSection').style.display = 'none';
+                    extractionStarted = true;
+                    extractionPaused = false;
+                    document.getElementById('instructionText').innerText = 'Codice di avvio corretto! Download avviato...';
+                } else {
+                    showKeyboardError('CODICE ERRATO');
+                }
+                return;
+            }
+
             if (extractionNextCodeIndex < extractionIntermediateCodes.length) {
                 if (userInput === extractionIntermediateCodes[extractionNextCodeIndex]) {
                     clearKey();
@@ -1511,6 +1737,8 @@
     function startPresidio() {
         isPresidiando = true;
         pauseGenericTimer();
+
+        playPresidioStartSound();
 
         const btn = document.getElementById('cpToggleBtn');
         btn.innerText = 'ANNULLA PRESIDIO';
