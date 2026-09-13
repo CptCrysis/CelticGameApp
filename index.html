@@ -20,38 +20,47 @@
     <style>
         :root {
             --green-glow: #00ff66;
-            --green-dim: #00aa44;
-            --green-dark: #003311;
+            --green-dim: #00b34a;
+            --green-dark: #02200c;
             --amber-glow: #ffb000;
-            --red-glow: #ff2a2a;
-            --blue-glow: #00bfff;
-            --panel-bg: rgba(18, 22, 18, 0.90);
-            --panel-border: #1e3a24;
+            --amber-dim: #996a00;
+            --red-glow: #ff3333;
+            --blue-glow: #00c3ff;
+            --panel-bg: rgba(12, 16, 13, 0.96);
+            --panel-border: #1f4228;
+            --panel-border-bright: #2d633b;
+            --screen-bg: #040905;
+        }
+
+        * {
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
         }
 
         html, body {
             width: 100vw;
-            height: 100vh;
+            height: 100dvh;
             overflow: hidden;
             margin: 0;
             padding: 0;
         }
 
+        /* SFONDO IN FIBRA DI CARBONIO */
         body {
             font-family: 'Share Tech Mono', monospace;
             background-color: #0b0d0b;
             background-image: 
-                radial-gradient(rgba(0, 255, 102, 0.03) 1px, transparent 0),
-                linear-gradient(45deg, #111 25%, transparent 25%, transparent 75%, #111 75%, #111),
-                linear-gradient(45deg, #111 25%, #080808 25%, #080808 75%, #111 75%, #111);
-            background-size: 8px 8px, 16px 16px, 16px 16px;
-            background-position: 0 0, 0 0, 8px 8px;
+                radial-gradient(rgba(0, 0, 0, 0.9) 15%, transparent 16%),
+                radial-gradient(rgba(0, 0, 0, 0.9) 15%, transparent 16%),
+                radial-gradient(rgba(255, 255, 255, 0.08) 15%, transparent 20%),
+                radial-gradient(rgba(255, 255, 255, 0.08) 15%, transparent 20%);
+            background-position: 0 0, 4px 4px, 0 1px, 4px 5px;
+            background-size: 8px 8px;
             color: var(--green-glow);
             display: flex;
             align-items: center;
             justify-content: center;
-            box-sizing: border-box;
-            padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+            padding: clamp(6px, 1.5dvh, 14px) env(safe-area-inset-right) clamp(6px, 1.5dvh, 14px) env(safe-area-inset-left);
             -webkit-user-select: none;
             user-select: none;
         }
@@ -59,63 +68,67 @@
         .card {
             background: var(--panel-bg);
             border: 2px solid var(--panel-border);
-            border-radius: 8px;
-            box-shadow: 0 0 20px rgba(0, 0, 0, 0.9), inset 0 0 15px rgba(0, 255, 102, 0.05);
-            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 0 25px rgba(0, 0, 0, 0.95), 0 0 10px rgba(0, 255, 102, 0.08), inset 0 0 15px rgba(0, 255, 102, 0.03);
+            padding: clamp(10px, 2.2dvh, 18px);
             text-align: center;
             width: 100%;
-            max-width: 420px;
-            max-height: 98vh;
-            overflow-y: auto;
+            max-width: min(450px, 98vw);
+            max-height: 98dvh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
             position: relative;
-            backdrop-filter: blur(4px);
+            backdrop-filter: blur(8px);
             transition: max-width 0.3s ease;
-            box-sizing: border-box;
         }
 
         .app-header {
             display: flex;
-            flex-direction: column;
+            flex-direction: row;
             align-items: center;
             justify-content: center;
-            gap: 4px;
-            margin-bottom: 8px;
-            border-bottom: 1px dashed var(--panel-border);
-            padding-bottom: 8px;
+            gap: 10px;
+            margin-bottom: clamp(4px, 1dvh, 8px);
+            border-bottom: 1px dashed var(--panel-border-bright);
+            padding-bottom: clamp(6px, 1dvh, 10px);
+            flex-shrink: 0;
         }
 
         .app-logo {
-            width: 50px;
-            height: 50px;
+            width: clamp(28px, 4.5dvh, 40px);
+            height: clamp(28px, 4.5dvh, 40px);
             object-fit: contain;
-            filter: drop-shadow(0 0 8px rgba(0, 255, 102, 0.4));
-            margin-bottom: 4px;
+            filter: drop-shadow(0 0 6px rgba(0, 255, 102, 0.5));
         }
 
         h1 {
             margin: 0;
-            font-size: 1.6rem;
+            font-size: clamp(1.2rem, 3dvh, 1.6rem);
             color: var(--green-glow);
             letter-spacing: 2px;
-            text-shadow: 0 0 8px rgba(0, 255, 102, 0.6);
+            text-shadow: 0 0 10px rgba(0, 255, 102, 0.6);
             text-transform: uppercase;
         }
 
         .mode-subtitle {
-            font-size: 0.95rem;
+            font-size: clamp(0.78rem, 1.8dvh, 0.95rem);
             color: var(--amber-glow);
             font-weight: bold;
             letter-spacing: 1.5px;
-            margin: 4px 0;
-            text-shadow: 0 0 5px rgba(255, 176, 0, 0.4);
+            margin: clamp(2px, 0.5dvh, 4px) 0;
+            text-shadow: 0 0 6px rgba(255, 176, 0, 0.4);
             text-transform: uppercase;
+            flex-shrink: 0;
         }
 
         .status-text {
-            font-size: 0.85rem;
-            color: #8fae96;
-            line-height: 1.2;
-            margin-bottom: 8px;
+            font-size: clamp(0.7rem, 1.5dvh, 0.85rem);
+            color: #9cbca4;
+            line-height: 1.25;
+            margin-bottom: clamp(4px, 1dvh, 8px);
+            flex-shrink: 0;
         }
 
         .seven-segment {
@@ -126,108 +139,124 @@
         .mode-grid {
             display: grid;
             grid-template-columns: 1fr;
-            gap: 8px;
-            margin-top: 8px;
+            gap: clamp(5px, 1dvh, 8px);
+            margin-top: clamp(2px, 0.5dvh, 6px);
         }
 
         .code-display {
-            font-size: 3rem;
+            font-size: clamp(2.2rem, 6dvh, 3.2rem);
             color: var(--amber-glow);
-            letter-spacing: 4px;
-            background-color: #050805;
-            border: 2px solid #2a2000;
-            padding: 8px;
-            border-radius: 4px;
-            margin: 8px 0;
-            text-shadow: 0 0 10px rgba(255, 176, 0, 0.7);
+            letter-spacing: 5px;
+            background-color: var(--screen-bg);
+            border: 2px solid #3d3000;
+            border-radius: 6px;
+            margin: clamp(4px, 1dvh, 8px) 0;
+            text-shadow: 0 0 12px rgba(255, 176, 0, 0.8);
+            box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.9);
+            height: clamp(50px, 7dvh, 62px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            white-space: nowrap;
+            overflow: hidden;
         }
 
         .timer-display {
-            font-size: 3.8rem;
+            font-size: clamp(2.8rem, 8dvh, 4rem);
             color: var(--green-glow);
-            background-color: #040a05;
+            background-color: var(--screen-bg);
             border: 2px solid var(--green-dark);
-            padding: 6px;
-            border-radius: 4px;
-            margin: 8px 0;
-            letter-spacing: 4px;
-            text-shadow: 0 0 12px rgba(0, 255, 102, 0.8);
+            padding: clamp(6px, 1.2dvh, 10px);
+            border-radius: 6px;
+            margin: clamp(4px, 1dvh, 8px) 0;
+            letter-spacing: 5px;
+            text-shadow: 0 0 14px rgba(0, 255, 102, 0.85);
+            box-shadow: inset 0 0 12px rgba(0, 0, 0, 0.95);
         }
 
         .timer-paused {
-            opacity: 0.5;
+            opacity: 0.6;
             border-color: var(--amber-glow) !important;
-            text-shadow: 0 0 8px rgba(255, 176, 0, 0.5) !important;
+            text-shadow: 0 0 8px rgba(255, 176, 0, 0.6) !important;
         }
 
         .timer-expired {
             color: var(--red-glow) !important;
-            border-color: #550000 !important;
-            text-shadow: 0 0 15px rgba(255, 42, 42, 0.9) !important;
+            border-color: #660000 !important;
+            text-shadow: 0 0 18px rgba(255, 51, 51, 0.95) !important;
             animation: pulse-red 0.8s infinite alternate;
         }
 
         @keyframes pulse-red {
-            0% { opacity: 1; box-shadow: 0 0 10px rgba(255, 42, 42, 0.4); }
-            100% { opacity: 0.4; box-shadow: 0 0 25px rgba(255, 42, 42, 0.8); }
+            0% { opacity: 1; box-shadow: inset 0 0 10px rgba(255, 51, 51, 0.5), 0 0 10px rgba(255, 51, 51, 0.4); }
+            100% { opacity: 0.4; box-shadow: inset 0 0 25px rgba(255, 51, 51, 0.8), 0 0 25px rgba(255, 51, 51, 0.8); }
         }
 
         .setup-grid {
             display: grid;
             grid-template-columns: 1fr;
-            gap: 8px;
-            margin: 8px 0;
+            gap: clamp(6px, 1.2dvh, 10px);
+            margin: clamp(4px, 1dvh, 8px) 0;
         }
 
         .setup-group {
             text-align: left;
             position: relative;
+            display: flex;
+            flex-direction: column;
         }
 
         .setup-group label {
-            font-size: 0.75rem;
-            color: #6b8e73;
-            margin-bottom: 2px;
+            font-size: clamp(0.65rem, 1.3dvh, 0.75rem);
+            color: #7a9e82;
+            margin-bottom: 4px;
             display: block;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
         .custom-select-wrapper {
             position: relative;
             width: 100%;
-            margin: 2px 0;
+        }
+
+        /* ALTEZZA E ALLINEAMENTO UNIFORME PER INPUT E SELECT */
+        input, .custom-select-trigger {
+            height: clamp(36px, 4.8dvh, 42px);
             box-sizing: border-box;
+            margin: 0;
         }
 
         .custom-select-trigger {
             width: 100%;
-            padding: 8px 10px;
-            font-size: 0.9rem;
+            padding: 0 clamp(8px, 2vw, 12px);
+            font-size: clamp(0.78rem, 1.6dvh, 0.88rem);
             font-family: 'Share Tech Mono', monospace;
-            background-color: #080d09;
+            background-color: #070d08;
             color: var(--green-glow);
-            border: 1px solid var(--panel-border);
-            border-radius: 4px;
+            border: 1px solid var(--panel-border-bright);
+            border-radius: 5px;
             display: flex;
             justify-content: space-between;
             align-items: center;
             cursor: pointer;
-            box-sizing: border-box;
             user-select: none;
+            transition: border-color 0.2s ease, background-color 0.2s ease;
         }
 
         .custom-select-trigger:active, .custom-select-wrapper.open .custom-select-trigger {
             border-color: var(--green-glow);
-            background-color: #0e1a10;
-            box-shadow: 0 0 6px rgba(0, 255, 102, 0.2);
+            background-color: #0d1e11;
+            box-shadow: 0 0 8px rgba(0, 255, 102, 0.25);
         }
 
         .custom-select-trigger .arrow {
-            font-size: 0.75rem;
+            font-size: clamp(0.65rem, 1.2dvh, 0.75rem);
             color: var(--green-dim);
             transition: transform 0.2s ease;
         }
 
-        .custom-select-wrapper.open .arrow {
+        .custom-select-wrapper.open .custom-select-trigger .arrow {
             transform: rotate(180deg);
             color: var(--green-glow);
         }
@@ -235,162 +264,180 @@
         .custom-select-options {
             display: none;
             position: absolute;
-            top: calc(100% + 2px);
+            top: calc(100% + 3px);
             left: 0;
             width: 100%;
-            background-color: #0b120c;
+            background-color: #0a120b;
             border: 1px solid var(--green-glow);
-            border-radius: 4px;
-            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.95);
+            border-radius: 5px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.95);
             z-index: 1000;
-            max-height: 160px;
-            overflow-y: auto;
-            box-sizing: border-box;
+            padding: 4px;
+            overflow: hidden;
         }
 
         .custom-select-wrapper.open .custom-select-options {
-            display: block;
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 4px;
+        }
+
+        .custom-select-wrapper.dropup .custom-select-options {
+            top: auto;
+            bottom: calc(100% + 3px);
         }
 
         .custom-option {
-            padding: 8px;
-            font-size: 0.85rem;
+            padding: clamp(5px, 1dvh, 7px) clamp(2px, 1vw, 4px);
+            font-size: clamp(0.68rem, 1.3dvh, 0.78rem);
             font-family: 'Share Tech Mono', monospace;
             color: #a3c2aa;
             text-align: center;
             cursor: pointer;
-            border-bottom: 1px dashed #1e3a24;
+            border: 1px solid var(--panel-border);
+            border-radius: 4px;
+            background-color: #070d08;
             transition: background 0.15s ease, color 0.15s ease;
-        }
-
-        .custom-option:last-child {
-            border-bottom: none;
+            white-space: nowrap;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .custom-option:hover, .custom-option.selected {
-            background-color: #142817;
+            background-color: #122816;
             color: var(--green-glow);
+            border-color: var(--green-glow);
             font-weight: bold;
         }
 
         input {
             width: 100%;
-            padding: 8px;
-            margin: 2px 0;
-            font-size: 0.95rem;
+            padding: 0 clamp(8px, 2vw, 12px);
+            font-size: clamp(0.78rem, 1.6dvh, 0.95rem);
             font-family: 'Share Tech Mono', monospace;
             text-align: center;
-            border-radius: 4px;
-            border: 1px solid var(--panel-border);
-            background-color: #080d09;
+            border-radius: 5px;
+            border: 1px solid var(--panel-border-bright);
+            background-color: #070d08;
             color: var(--green-glow);
             outline: none;
-            box-sizing: border-box;
             cursor: pointer;
         }
 
         button {
             width: 100%;
-            padding: 10px;
-            font-size: 0.9rem;
+            padding: clamp(8px, 1.6dvh, 11px);
+            font-size: clamp(0.78rem, 1.6dvh, 0.9rem);
             font-family: 'Share Tech Mono', monospace;
             font-weight: bold;
             text-transform: uppercase;
             letter-spacing: 1px;
-            background-color: #142817;
+            background-color: #122816;
             color: var(--green-glow);
             border: 1px solid var(--green-dim);
-            border-radius: 4px;
+            border-radius: 5px;
             cursor: pointer;
-            margin: 4px 0;
+            margin: clamp(3px, 0.6dvh, 5px) 0;
+            transition: background 0.15s ease, transform 0.1s ease;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.4);
         }
 
         button:active {
             transform: translateY(1px);
-            background-color: #1e3d23;
+            background-color: #1a3820;
         }
 
-        .btn-red { background-color: #3a0d0d; color: #ff6b6b; border-color: #7a1c1c; }
-        .btn-blue { background-color: #0d283a; color: #6bc2ff; border-color: #1c527a; }
-        .btn-hold { background-color: #2b1f0d; color: var(--amber-glow); border-color: var(--amber-glow); }
+        .btn-red { background-color: #380d0d; color: #ff7777; border-color: #8a2020; }
+        .btn-red:active { background-color: #4a1313; }
+        
+        .btn-blue { background-color: #0c283d; color: #6bc2ff; border-color: #1c5b8a; }
+        .btn-blue:active { background-color: #123652; }
+
+        .btn-hold { background-color: #33240d; color: var(--amber-glow); border-color: var(--amber-glow); }
+        .btn-hold:active { background-color: #453112; }
 
         .wire-container {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 8px;
-            margin: 8px 0;
+            gap: clamp(6px, 1.2dvh, 10px);
+            margin: clamp(4px, 1dvh, 8px) 0;
         }
 
         .btn-wire {
             width: 100%;
             margin: 0;
-            font-size: 0.8rem;
-            padding: 10px 2px;
+            font-size: clamp(0.72rem, 1.4dvh, 0.82rem);
+            padding: clamp(8px, 1.6dvh, 12px) 4px;
+            border-radius: 6px;
         }
 
-        .wire-red { background: linear-gradient(135deg, #4a0f0f, #280808); color: #ff8888; border-color: #ff3333; }
-        .wire-blue { background: linear-gradient(135deg, #0f2b4a, #081728); color: #88ccff; border-color: #3399ff; }
-        .wire-green { background: linear-gradient(135deg, #0f4a1c, #08280f); color: #88ffaa; border-color: #33ff66; }
-        .wire-yellow { background: linear-gradient(135deg, #4a410f, #282308); color: #ffee88; border-color: #ffcc00; }
+        .wire-red { background: linear-gradient(135deg, #4d1010, #260808); color: #ff9999; border-color: #ff4444; }
+        .wire-blue { background: linear-gradient(135deg, #102e4d, #081726); color: #99d6ff; border-color: #33a6ff; }
+        .wire-green { background: linear-gradient(135deg, #104d1d, #08260f); color: #99ffbb; border-color: #33ff77; }
+        .wire-yellow { background: linear-gradient(135deg, #4d4310, #262108); color: #ffee99; border-color: #ffd700; }
 
         .progress-container {
             width: 100%;
-            background-color: #050a06;
-            border-radius: 4px;
-            margin: 8px 0;
+            background-color: var(--screen-bg);
+            border-radius: 5px;
+            margin: clamp(4px, 1dvh, 8px) 0;
             overflow: hidden;
-            border: 1px solid var(--panel-border);
-            height: 18px;
+            border: 1px solid var(--panel-border-bright);
+            height: clamp(14px, 2.2dvh, 18px);
             display: none;
+            box-shadow: inset 0 0 6px rgba(0,0,0,0.8);
         }
 
         .progress-bar {
             width: 0%;
             height: 100%;
-            background: linear-gradient(90deg, #00aa44, #00ff66);
+            background: linear-gradient(90deg, #00993d, #00ff66);
             transition: width 0.2s linear;
         }
 
         .progress-bar-amber {
-            background: linear-gradient(90deg, #aa7700, #ffb000) !important;
+            background: linear-gradient(90deg, #996a00, #ffb000) !important;
         }
 
         .progress-text {
-            font-size: 0.85rem;
+            font-size: clamp(0.72rem, 1.5dvh, 0.85rem);
             font-weight: bold;
             color: var(--green-glow);
             margin-bottom: 2px;
+            letter-spacing: 1px;
         }
 
+        /* PERFETTA DISTRIBUZIONE E ALLINEAMENTO MODALITÀ DOMINIO */
         .domination-score {
             display: flex;
             justify-content: space-between;
-            gap: 8px;
-            margin: 8px 0;
+            gap: 10px;
+            margin: clamp(4px, 1dvh, 8px) 0;
         }
 
         .dom-box {
-            width: 48%;
-            padding: 6px;
-            border-radius: 4px;
-            background: #080d09;
-            box-sizing: border-box;
+            flex: 1;
+            padding: clamp(6px, 1.2dvh, 8px);
+            border-radius: 6px;
+            background: var(--screen-bg);
+            box-shadow: inset 0 0 8px rgba(0,0,0,0.8);
         }
 
-        .dom-box-red { border: 2px solid #7a1c1c; }
-        .dom-box-blue { border: 2px solid #1c527a; }
+        .dom-box-red { border: 2px solid #8a2020; }
+        .dom-box-blue { border: 2px solid #1c5b8a; }
 
-        .dom-title { margin: 0 0 2px 0; font-size: 0.75rem; }
-        .dom-time { font-size: 1.8rem; font-weight: bold; }
+        .dom-title { margin: 0 0 2px 0; font-size: clamp(0.68rem, 1.3dvh, 0.78rem); letter-spacing: 1px; }
+        .dom-time { font-size: clamp(1.4rem, 3.8dvh, 2rem); font-weight: bold; }
 
         .modal-overlay {
             position: fixed;
             top: 0;
             left: 0;
             width: 100vw;
-            height: 100vh;
-            background: rgba(0, 0, 0, 0.85);
-            backdrop-filter: blur(5px);
+            height: 100dvh;
+            background: rgba(3, 6, 4, 0.88);
+            backdrop-filter: blur(6px);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -408,65 +455,75 @@
         .modal-content {
             background: var(--panel-bg);
             border: 2px solid var(--green-glow);
-            border-radius: 8px;
-            box-shadow: 0 0 30px rgba(0, 255, 102, 0.2);
-            padding: 15px;
-            width: 90%;
-            max-width: 450px;
-            box-sizing: border-box;
+            border-radius: 10px;
+            box-shadow: 0 0 35px rgba(0, 255, 102, 0.25);
+            padding: clamp(12px, 2.2dvh, 18px);
+            width: 92%;
+            max-width: 460px;
+            max-height: 96dvh;
             position: relative;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
         }
 
+        /* ALTEZZA FISSA: EVITA L'ESPANSIONE DINAMICA DEL DISPLAY QUANDO SI SCRIVE */
         .keyboard-input-display {
-            background-color: #050805;
+            background-color: var(--screen-bg);
             border: 2px solid var(--green-glow);
             color: var(--green-glow);
-            font-size: 2.2rem;
+            font-size: clamp(1.8rem, 4.8dvh, 2.4rem);
             letter-spacing: 6px;
-            padding: 8px;
-            border-radius: 4px;
-            min-height: 42px;
+            border-radius: 6px;
+            height: clamp(46px, 6.5dvh, 56px);
             display: flex;
             align-items: center;
             justify-content: center;
-            margin-bottom: 10px;
-            text-shadow: 0 0 8px rgba(0, 255, 102, 0.6);
-            transition: all 0.2s ease;
+            margin-bottom: clamp(8px, 1.5dvh, 12px);
+            text-shadow: 0 0 10px rgba(0, 255, 102, 0.7);
+            box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.9);
+            transition: border-color 0.2s ease, color 0.2s ease;
+            white-space: nowrap;
+            overflow: hidden;
+            box-sizing: border-box;
+            line-height: 1;
         }
 
         .keyboard-input-display.display-error {
             color: var(--red-glow) !important;
             border-color: var(--red-glow) !important;
-            text-shadow: 0 0 10px rgba(255, 42, 42, 0.8) !important;
-            font-size: 1.6rem !important;
-            letter-spacing: 2px !important;
+            text-shadow: 0 0 12px rgba(255, 51, 51, 0.85) !important;
+            font-size: clamp(1.1rem, 3.2dvh, 1.5rem) !important;
+            letter-spacing: 1px !important;
         }
 
         .virtual-keyboard {
             display: flex;
-            gap: 8px;
-            margin: 6px 0;
+            gap: clamp(6px, 1.5vw, 10px);
+            margin: clamp(2px, 0.5dvh, 6px) 0;
         }
 
         .keyboard-column {
             display: flex;
             flex-direction: column;
-            gap: 4px;
+            gap: clamp(3px, 0.6dvh, 5px);
             flex: 1;
+            justify-content: space-between;
         }
 
         .key-row {
             display: flex;
-            gap: 4px;
+            gap: clamp(3px, 0.6vw, 5px);
             justify-content: center;
         }
 
         .key-btn {
             flex: 1;
-            padding: 10px 2px;
-            font-size: 0.95rem;
+            padding: clamp(6px, 1.3dvh, 11px) 2px;
+            font-size: clamp(0.78rem, 1.8dvh, 0.98rem);
             margin: 0;
             min-width: 0;
+            border-radius: 4px;
         }
 
         .close-modal-btn {
@@ -474,8 +531,8 @@
             top: -12px;
             right: -12px;
             background: #3a0d0d;
-            color: #ff6b6b;
-            border: 2px solid #7a1c1c;
+            color: #ff7777;
+            border: 2px solid #8a2020;
             border-radius: 50%;
             width: 30px;
             height: 30px;
@@ -485,32 +542,32 @@
             align-items: center;
             justify-content: center;
             cursor: pointer;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.8);
+            box-shadow: 0 0 12px rgba(0, 0, 0, 0.9);
         }
 
         .reset-btn {
-            background-color: #241010;
-            color: #ff7777;
-            border-color: #552222;
-            margin-top: 10px;
-            font-size: 0.75rem;
-            padding: 6px;
-            width: 70%;
+            background-color: #240d0d;
+            color: #ff8888;
+            border-color: #551d1d;
+            margin-top: clamp(6px, 1.2dvh, 12px);
+            font-size: clamp(0.68rem, 1.3dvh, 0.78rem);
+            padding: clamp(5px, 1dvh, 7px);
+            width: 65%;
+            align-self: center;
         }
 
-        .error { color: var(--red-glow); margin-top: 6px; font-weight: bold; }
-        .app-version { position: absolute; bottom: 2px; left: 8px; font-size: 0.65rem; color: #3b5240; pointer-events: none; }
+        .error { color: var(--red-glow); margin-top: 4px; font-weight: bold; font-size: clamp(0.7rem, 1.4dvh, 0.85rem); }
+        .app-version { position: absolute; bottom: 3px; left: 8px; font-size: 0.62rem; color: #3b5240; pointer-events: none; }
 
         @media (orientation: landscape) {
             .card {
-                max-width: 720px;
-                padding: 15px 25px;
+                max-width: min(730px, 98vw);
+                padding: clamp(8px, 1.8dvh, 14px) clamp(14px, 3vw, 24px);
             }
 
             .app-logo {
-                width: 42px;
-                height: 42px;
-                margin-bottom: 2px;
+                width: clamp(24px, 4.5dvh, 36px);
+                height: clamp(24px, 4.5dvh, 36px);
             }
 
             .mode-grid {
@@ -518,7 +575,7 @@
             }
 
             .setup-grid {
-                grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+                grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
             }
 
             .wire-container {
@@ -526,15 +583,15 @@
             }
 
             .timer-display {
-                font-size: 4.5rem;
+                font-size: clamp(2.4rem, 8.5dvh, 4.2rem);
             }
 
             .code-display {
-                font-size: 3.5rem;
+                font-size: clamp(2rem, 7dvh, 3.4rem);
             }
 
             .modal-content {
-                max-width: 550px;
+                max-width: 560px;
             }
         }
     </style>
@@ -571,19 +628,20 @@
                         <span class="arrow">▼</span>
                     </div>
                     <div class="custom-select-options">
-                        <div class="custom-option" data-value="10" onclick="selectCustomOption('timerSelectWrapper', '10', '10 Minuti')">10 Minuti</div>
-                        <div class="custom-option" data-value="15" onclick="selectCustomOption('timerSelectWrapper', '15', '15 Minuti')">15 Minuti</div>
-                        <div class="custom-option" data-value="20" onclick="selectCustomOption('timerSelectWrapper', '20', '20 Minuti')">20 Minuti</div>
-                        <div class="custom-option selected" data-value="30" onclick="selectCustomOption('timerSelectWrapper', '30', '30 Minuti')">30 Minuti</div>
-                        <div class="custom-option" data-value="45" onclick="selectCustomOption('timerSelectWrapper', '45', '45 Minuti')">45 Minuti</div>
-                        <div class="custom-option" data-value="60" onclick="selectCustomOption('timerSelectWrapper', '60', '60 Minuti')">60 Minuti</div>
+                        <div class="custom-option" data-value="10" onclick="selectCustomOption('timerSelectWrapper', '10', '10 Minuti')">10 Min</div>
+                        <div class="custom-option" data-value="15" onclick="selectCustomOption('timerSelectWrapper', '15', '15 Minuti')">15 Min</div>
+                        <div class="custom-option" data-value="20" onclick="selectCustomOption('timerSelectWrapper', '20', '20 Minuti')">20 Min</div>
+                        <div class="custom-option selected" data-value="30" onclick="selectCustomOption('timerSelectWrapper', '30', '30 Minuti')">30 Min</div>
+                        <div class="custom-option" data-value="45" onclick="selectCustomOption('timerSelectWrapper', '45', '45 Minuti')">45 Min</div>
+                        <div class="custom-option" data-value="60" onclick="selectCustomOption('timerSelectWrapper', '60', '60 Minuti')">60 Min</div>
                     </div>
                     <input type="hidden" id="timerSelect" value="30">
                 </div>
             </div>
 
-            <div id="extractionSetupOptions" class="setup-group" style="display: none;">
-                <div style="margin-bottom: 8px;">
+            <!-- OPZIONI ESTRAZIONE RAGGRUPPATE E ALLINEATE -->
+            <div id="extractionSetupOptions" style="display: none; contents: true;">
+                <div class="setup-group">
                     <label>DURATA DOWNLOAD:</label>
                     <div class="custom-select-wrapper" id="extractionDownloadWrapper">
                         <div class="custom-select-trigger" onclick="toggleCustomSelect('extractionDownloadWrapper', event)">
@@ -591,37 +649,38 @@
                             <span class="arrow">▼</span>
                         </div>
                         <div class="custom-select-options">
-                            <div class="custom-option" data-value="2" onclick="selectCustomOption('extractionDownloadWrapper', '2', '2 Minuti')">2 Minuti</div>
-                            <div class="custom-option" data-value="3" onclick="selectCustomOption('extractionDownloadWrapper', '3', '3 Minuti')">3 Minuti</div>
-                            <div class="custom-option selected" data-value="5" onclick="selectCustomOption('extractionDownloadWrapper', '5', '5 Minuti')">5 Minuti</div>
-                            <div class="custom-option" data-value="10" onclick="selectCustomOption('extractionDownloadWrapper', '10', '10 Minuti')">10 Minuti</div>
-                            <div class="custom-option" data-value="15" onclick="selectCustomOption('extractionDownloadWrapper', '15', '15 Minuti')">15 Minuti</div>
-                            <div class="custom-option" data-value="20" onclick="selectCustomOption('extractionDownloadWrapper', '20', '20 Minuti')">20 Minuti</div>
+                            <div class="custom-option" data-value="2" onclick="selectCustomOption('extractionDownloadWrapper', '2', '2 Minuti')">2 Min</div>
+                            <div class="custom-option" data-value="3" onclick="selectCustomOption('extractionDownloadWrapper', '3', '3 Minuti')">3 Min</div>
+                            <div class="custom-option selected" data-value="5" onclick="selectCustomOption('extractionDownloadWrapper', '5', '5 Minuti')">5 Min</div>
+                            <div class="custom-option" data-value="10" onclick="selectCustomOption('extractionDownloadWrapper', '10', '10 Minuti')">10 Min</div>
+                            <div class="custom-option" data-value="15" onclick="selectCustomOption('extractionDownloadWrapper', '15', '15 Minuti')">15 Min</div>
+                            <div class="custom-option" data-value="20" onclick="selectCustomOption('extractionDownloadWrapper', '20', '20 Minuti')">20 Min</div>
                         </div>
                         <input type="hidden" id="extractionDownloadSelect" value="5">
                     </div>
                 </div>
-                <div>
+                <div class="setup-group">
                     <label>CODICI INTERMEDI:</label>
                     <div class="custom-select-wrapper" id="extractionCodesWrapper">
                         <div class="custom-select-trigger" onclick="toggleCustomSelect('extractionCodesWrapper', event)">
-                            <span>2 Codici Intermedi</span>
+                            <span>2 Codici</span>
                             <span class="arrow">▼</span>
                         </div>
                         <div class="custom-select-options">
-                            <div class="custom-option" data-value="0" onclick="selectCustomOption('extractionCodesWrapper', '0', '0 (Nessun blocco)')">0 (Nessun blocco)</div>
-                            <div class="custom-option" data-value="1" onclick="selectCustomOption('extractionCodesWrapper', '1', '1 Codice Intermedio')">1 Codice Intermedio</div>
-                            <div class="custom-option selected" data-value="2" onclick="selectCustomOption('extractionCodesWrapper', '2', '2 Codici Intermedi')">2 Codici Intermedi</div>
-                            <div class="custom-option" data-value="3" onclick="selectCustomOption('extractionCodesWrapper', '3', '3 Codici Intermedi')">3 Codici Intermedi</div>
-                            <div class="custom-option" data-value="4" onclick="selectCustomOption('extractionCodesWrapper', '4', '4 Codici Intermedi')">4 Codici Intermedi</div>
+                            <div class="custom-option" data-value="0" onclick="selectCustomOption('extractionCodesWrapper', '0', '0 (Nessuno)')">0 Codici</div>
+                            <div class="custom-option" data-value="1" onclick="selectCustomOption('extractionCodesWrapper', '1', '1 Codice')">1 Codice</div>
+                            <div class="custom-option selected" data-value="2" onclick="selectCustomOption('extractionCodesWrapper', '2', '2 Codici')">2 Codici</div>
+                            <div class="custom-option" data-value="3" onclick="selectCustomOption('extractionCodesWrapper', '3', '3 Codici')">3 Codici</div>
+                            <div class="custom-option" data-value="4" onclick="selectCustomOption('extractionCodesWrapper', '4', '4 Codici')">4 Codici</div>
                         </div>
                         <input type="hidden" id="extractionCodesSelect" value="2">
                     </div>
                 </div>
             </div>
 
-            <div id="cpSetupOptions" class="setup-group" style="display: none;">
-                <div style="margin-bottom: 8px;">
+            <!-- OPZIONI CHECKPOINT RAGGRUPPATE E ALLINEATE -->
+            <div id="cpSetupOptions" style="display: none; contents: true;">
+                <div class="setup-group">
                     <label>DURATA PRESIDIO:</label>
                     <div class="custom-select-wrapper" id="cpDurationWrapper">
                         <div class="custom-select-trigger" onclick="toggleCustomSelect('cpDurationWrapper', event)">
@@ -629,16 +688,16 @@
                             <span class="arrow">▼</span>
                         </div>
                         <div class="custom-select-options">
-                            <div class="custom-option selected" data-value="5" onclick="selectCustomOption('cpDurationWrapper', '5', '5 Minuti')">5 Minuti</div>
-                            <div class="custom-option" data-value="10" onclick="selectCustomOption('cpDurationWrapper', '10', '10 Minuti')">10 Minuti</div>
-                            <div class="custom-option" data-value="15" onclick="selectCustomOption('cpDurationWrapper', '15', '15 Minuti')">15 Minuti</div>
-                            <div class="custom-option" data-value="20" onclick="selectCustomOption('cpDurationWrapper', '20', '20 Minuti')">20 Minuti</div>
-                            <div class="custom-option" data-value="30" onclick="selectCustomOption('cpDurationWrapper', '30', '30 Minuti')">30 Minuti</div>
+                            <div class="custom-option selected" data-value="5" onclick="selectCustomOption('cpDurationWrapper', '5', '5 Minuti')">5 Min</div>
+                            <div class="custom-option" data-value="10" onclick="selectCustomOption('cpDurationWrapper', '10', '10 Minuti')">10 Min</div>
+                            <div class="custom-option" data-value="15" onclick="selectCustomOption('cpDurationWrapper', '15', '15 Minuti')">15 Min</div>
+                            <div class="custom-option" data-value="20" onclick="selectCustomOption('cpDurationWrapper', '20', '20 Minuti')">20 Min</div>
+                            <div class="custom-option" data-value="30" onclick="selectCustomOption('cpDurationWrapper', '30', '30 Minuti')">30 Min</div>
                         </div>
                         <input type="hidden" id="cpDurationSelect" value="5">
                     </div>
                 </div>
-                <div>
+                <div class="setup-group">
                     <label>NUMERO CODICI:</label>
                     <div class="custom-select-wrapper" id="cpCodesWrapper">
                         <div class="custom-select-trigger" onclick="toggleCustomSelect('cpCodesWrapper', event)">
@@ -658,9 +717,9 @@
             </div>
         </div>
 
-        <div id="masterCodesDisplay" style="display: none; margin: 10px 0; background: rgba(0,0,0,0.4); padding: 8px; border-radius: 5px; border: 1px dashed var(--amber-glow);">
-            <div style="font-size: 0.75rem; color: #aaa; margin-bottom: 4px;">CODICI GENERATI PER IL MASTER:</div>
-            <div id="masterCodesList" style="display: flex; justify-content: center; gap: 8px; flex-wrap: wrap;"></div>
+        <div id="masterCodesDisplay" style="display: none; margin: 6px 0; background: rgba(0,0,0,0.5); padding: 6px; border-radius: 6px; border: 1px dashed var(--amber-glow);">
+            <div style="font-size: 0.7rem; color: #aaa; margin-bottom: 2px;">CODICI GENERATI PER IL MASTER:</div>
+            <div id="masterCodesList" style="display: flex; justify-content: center; gap: 6px; flex-wrap: wrap;"></div>
         </div>
 
         <div id="wireSetupOptions" class="setup-grid" style="display: none;">
@@ -709,9 +768,9 @@
     <div id="passwordDisplay" class="code-display seven-segment" style="display: none;">----</div>
     <div id="timerDisplay" class="timer-display seven-segment" style="display: none;">00:00</div>
 
-    <div id="checkpointCodesDisplay" style="display: none; margin: 8px 0; background: #050805; padding: 8px; border-radius: 4px; border: 2px solid #2a2000;">
-        <div style="font-size: 0.75rem; color: var(--amber-glow); margin-bottom: 4px;">STATO CODICI PRESIDIO</div>
-        <div id="checkpointCodesList" style="display: flex; justify-content: space-around; gap: 8px; flex-wrap: wrap;"></div>
+    <div id="checkpointCodesDisplay" style="display: none; margin: 6px 0; background: var(--screen-bg); padding: 6px; border-radius: 6px; border: 2px solid #3d3000;">
+        <div style="font-size: 0.7rem; color: var(--amber-glow); margin-bottom: 2px;">STATO CODICI PRESIDIO</div>
+        <div id="checkpointCodesList" style="display: flex; justify-content: space-around; gap: 6px; flex-wrap: wrap;"></div>
     </div>
 
     <div id="progressText" class="progress-text" style="display: none;">DOWNLOAD: 0%</div>
@@ -724,29 +783,29 @@
         <button id="lockBtn" type="button" onclick="lockPasswordClassic()">NASCONDI E AVVIA TIMER</button>
     </div>
 
-    <div id="unlockSection" style="display: none; margin: 10px 0;">
-        <button type="button" onclick="openKeyboardModal('code')" style="font-size: 1.1rem; padding: 12px; background: #1a331e; border-color: var(--green-glow);">
+    <div id="unlockSection" style="display: none; margin: 6px 0;">
+        <button type="button" onclick="openKeyboardModal('code')" style="font-size: clamp(0.85rem, 1.8dvh, 1.1rem); padding: clamp(8px, 1.5dvh, 12px); background: #18331d; border-color: var(--green-glow);">
             ⌨ INSERISCI CODICE
         </button>
     </div>
 
-    <div id="wireAccessSection" style="display: none; margin: 10px 0;">
-        <input type="password" id="wireAccessInput" placeholder="Password Pannello (Tocca qui)" readonly inputmode="none" onclick="openKeyboardModal('wireAccess')" style="margin-bottom: 8px;">
-        <button type="button" onclick="verifyWireAccess()" style="font-size: 1.1rem; padding: 12px;">ACCEDI AL PANNELLO</button>
+    <div id="wireAccessSection" style="display: none; margin: 6px 0;">
+        <input type="password" id="wireAccessInput" placeholder="Password Pannello (Tocca qui)" readonly inputmode="none" onclick="openKeyboardModal('wireAccess')" style="margin-bottom: 6px;">
+        <button type="button" onclick="verifyWireAccess()" style="font-size: clamp(0.85rem, 1.8dvh, 1.1rem); padding: clamp(8px, 1.5dvh, 12px);">ACCEDI AL PANNELLO</button>
     </div>
 
     <div id="dominationControls" style="display: none;">
         <div class="domination-score">
             <div class="dom-box dom-box-red">
-                <h3 class="dom-title" style="color: #ff6b6b;">ROSSI</h3>
-                <div id="redTimeDisplay" class="dom-time seven-segment" style="color: #ff6b6b;">00:00</div>
+                <h3 class="dom-title" style="color: #ff7777;">ROSSI</h3>
+                <div id="redTimeDisplay" class="dom-time seven-segment" style="color: #ff7777;">00:00</div>
             </div>
             <div class="dom-box dom-box-blue">
                 <h3 class="dom-title" style="color: #6bc2ff;">BLU</h3>
                 <div id="blueTimeDisplay" class="dom-time seven-segment" style="color: #6bc2ff;">00:00</div>
             </div>
         </div>
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px;">
             <button class="btn-red" onclick="captureDomination('red')">CONQUISTA ROSSI</button>
             <button class="btn-blue" onclick="captureDomination('blue')">CONQUISTA BLU</button>
         </div>
@@ -849,7 +908,7 @@
             </div>
         </div>
 
-        <button id="verifyBtn" type="button" onclick="handleVirtualKeyboardSubmit()" style="margin-top: 10px; font-size: 1.1rem; padding: 12px;">CONFERMA</button>
+        <button id="verifyBtn" type="button" onclick="handleVirtualKeyboardSubmit()" style="margin-top: clamp(6px, 1.2dvh, 10px); font-size: clamp(0.85rem, 1.8dvh, 1.1rem); padding: clamp(8px, 1.5dvh, 12px);">CONFERMA</button>
     </div>
 </div>
 
@@ -902,9 +961,17 @@
         const wrapper = document.getElementById(wrapperId);
         const isOpen = wrapper.classList.contains('open');
         
-        document.querySelectorAll('.custom-select-wrapper').forEach(w => w.classList.remove('open'));
+        document.querySelectorAll('.custom-select-wrapper').forEach(w => {
+            w.classList.remove('open');
+            w.classList.remove('dropup');
+        });
         
         if (!isOpen) {
+            const rect = wrapper.getBoundingClientRect();
+            const spaceBelow = window.innerHeight - rect.bottom;
+            if (spaceBelow < 110 && rect.top > 110) {
+                wrapper.classList.add('dropup');
+            }
             wrapper.classList.add('open');
         }
     }
@@ -938,7 +1005,10 @@
 
     document.addEventListener('click', (e) => {
         if (!e.target.closest('.custom-select-wrapper')) {
-            document.querySelectorAll('.custom-select-wrapper').forEach(w => w.classList.remove('open'));
+            document.querySelectorAll('.custom-select-wrapper').forEach(w => {
+                w.classList.remove('open');
+                w.classList.remove('dropup');
+            });
         }
 
         if (!document.fullscreenElement && document.documentElement.requestFullscreen) {
@@ -1124,15 +1194,15 @@
         container.innerHTML = '';
         items.forEach(item => {
             const box = document.createElement('div');
-            box.style.cssText = 'display: flex; flex-direction: column; align-items: center; background: rgba(0,0,0,0.5); padding: 4px 8px; border-radius: 4px; border: 1px solid var(--amber-glow); min-width: 65px; margin: 2px;';
+            box.style.cssText = 'display: flex; flex-direction: column; align-items: center; background: rgba(0,0,0,0.5); padding: 3px 7px; border-radius: 4px; border: 1px solid var(--amber-glow); min-width: 58px; margin: 2px;';
             
             const lbl = document.createElement('div');
-            lbl.style.cssText = 'font-size: 0.65rem; color: var(--amber-glow); margin-bottom: 2px; text-transform: uppercase; font-weight: bold;';
+            lbl.style.cssText = 'font-size: 0.6rem; color: var(--amber-glow); margin-bottom: 2px; text-transform: uppercase; font-weight: bold;';
             lbl.innerText = item.label;
             
             const val = document.createElement('div');
             val.className = 'seven-segment';
-            val.style.cssText = 'font-size: 1.3rem; color: #fff;';
+            val.style.cssText = 'font-size: 1.15rem; color: #fff;';
             val.innerText = item.code;
             
             box.appendChild(lbl);
@@ -1240,7 +1310,7 @@
         document.getElementById('extractionSetupOptions').style.display = 'none';
         document.getElementById('wireSetupOptions').style.display = 'none';
         document.getElementById('passwordDisplay').style.display = 'none';
-        document.getElementById('passwordDisplay').style.fontSize = '3rem';
+        document.getElementById('passwordDisplay').style.fontSize = 'clamp(2.2rem, 6dvh, 3.2rem)';
         document.getElementById('timerDisplay').style.display = 'none';
         document.getElementById('timerDisplay').classList.remove('timer-expired', 'timer-paused');
         
@@ -1286,7 +1356,7 @@
         } else if (mode === 'extraction') {
             document.getElementById('modeTitle').innerText = 'MODALITÀ ESTRAZIONE DATI';
             document.getElementById('instructionText').innerText = 'Imposta i parametri. Annota il codice di avvio e gli eventuali codici intermedi.';
-            document.getElementById('extractionSetupOptions').style.display = 'block';
+            document.getElementById('extractionSetupOptions').style.display = 'contents';
             updateExtractionMasterCodes();
         } else if (mode === 'snd') {
             document.getElementById('modeTitle').innerText = 'MODALITÀ SEARCH & DESTROY';
@@ -1300,7 +1370,7 @@
         } else if (mode === 'checkpoint') {
             document.getElementById('modeTitle').innerText = 'MODALITÀ CHECKPOINT';
             document.getElementById('instructionText').innerText = 'Annota o crea gli indizi per i codici qui sotto, imposta i timer e avvia il gioco.';
-            document.getElementById('cpSetupOptions').style.display = 'block';
+            document.getElementById('cpSetupOptions').style.display = 'contents';
             updateCpMasterCodes();
         }
     }
@@ -1314,8 +1384,8 @@
         if (currentMode === 'classic') {
             targetPassword = Math.floor(1000 + Math.random() * 9000).toString();
             document.getElementById('passwordDisplay').innerText = targetPassword;
-            document.getElementById('passwordDisplay').style.display = 'block';
-            document.getElementById('passwordDisplay').style.fontSize = '3rem';
+            document.getElementById('passwordDisplay').style.display = 'flex';
+            document.getElementById('passwordDisplay').style.fontSize = 'clamp(2.2rem, 6dvh, 3.2rem)';
             document.getElementById('classicControls').style.display = 'block';
             document.getElementById('instructionText').innerText = 'Imposta questa password sul lucchetto, poi avvia il timer.';
         } 
@@ -1391,7 +1461,7 @@
                 const codeElem = document.createElement('div');
                 codeElem.id = `cpCode${i + 1}`;
                 codeElem.className = 'seven-segment';
-                codeElem.style.cssText = 'font-size: 1.5rem; color: var(--amber-glow);';
+                codeElem.style.cssText = 'font-size: clamp(1.1rem, 3dvh, 1.5rem); color: var(--amber-glow);';
                 codeElem.innerText = '****';
                 listContainer.appendChild(codeElem);
             }
@@ -1554,8 +1624,8 @@
         if (color === correctWire) {
             clearInterval(timerInterval);
             document.getElementById('passwordDisplay').innerText = 'ORDIGNO DISINNESCATO';
-            document.getElementById('passwordDisplay').style.fontSize = '1.8rem';
-            document.getElementById('passwordDisplay').style.display = 'block';
+            document.getElementById('passwordDisplay').style.fontSize = 'clamp(1.2rem, 3.5dvh, 1.8rem)';
+            document.getElementById('passwordDisplay').style.display = 'flex';
             document.getElementById('instructionText').innerText = 'MISSIONE COMPIUTA! Il circuito di innesco è stato neutralizzato.';
             document.getElementById('wireControls').style.display = 'none';
         } else if (color === boomWire) {
@@ -1658,7 +1728,7 @@
                 clearKey();
                 closeKeyboardModal();
                 document.getElementById('passwordDisplay').innerText = targetPassword;
-                document.getElementById('passwordDisplay').style.display = 'block';
+                document.getElementById('passwordDisplay').style.display = 'flex';
                 document.getElementById('instructionText').innerText = 'OBIETTIVO SBLOCCATO! Utilizza questa combinazione.';
                 document.getElementById('unlockSection').style.display = 'none';
             } else {
@@ -1703,8 +1773,8 @@
                 clearKey();
                 closeKeyboardModal();
                 document.getElementById('passwordDisplay').innerText = 'ORDIGNO DISINNESCATO';
-                document.getElementById('passwordDisplay').style.fontSize = '1.8rem';
-                document.getElementById('passwordDisplay').style.display = 'block';
+                document.getElementById('passwordDisplay').style.fontSize = 'clamp(1.2rem, 3.5dvh, 1.8rem)';
+                document.getElementById('passwordDisplay').style.display = 'flex';
                 document.getElementById('instructionText').innerText = 'MISSIONE COMPIUTA! L\'ordigno è stato disinnescato con successo.';
                 document.getElementById('unlockSection').style.display = 'none';
             } else {
@@ -1790,8 +1860,8 @@
         document.getElementById('cpHoldSection').style.display = 'none';
         document.getElementById('instructionText').innerText = 'PRESIDIO CONQUISTATO CON SUCCESSO! VITTORIA!';
         document.getElementById('passwordDisplay').innerText = 'PRESIDIO OK';
-        document.getElementById('passwordDisplay').style.fontSize = '2rem';
-        document.getElementById('passwordDisplay').style.display = 'block';
+        document.getElementById('passwordDisplay').style.fontSize = 'clamp(1.4rem, 4dvh, 2rem)';
+        document.getElementById('passwordDisplay').style.display = 'flex';
     }
 
     if ('serviceWorker' in navigator) {
