@@ -1,1 +1,1 @@
-App Version 3.4
+App Version 3.4_beta
