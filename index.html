@@ -32,7 +32,7 @@
         html, body {
             width: 100vw;
             height: 100vh;
-            overflow: hidden; /* Elimina qualsiasi barra di scorrimento del browser */
+            overflow: hidden;
             margin: 0;
             padding: 0;
         }
@@ -56,7 +56,6 @@
             user-select: none;
         }
 
-        /* CARD BASE (PORTRAIT) */
         .card {
             background: var(--panel-bg);
             border: 2px solid var(--panel-border);
@@ -301,7 +300,6 @@
         .dom-title { margin: 0 0 2px 0; font-size: 0.75rem; }
         .dom-time { font-size: 1.8rem; font-weight: bold; }
 
-        /* MODALE POPUP */
         .modal-overlay {
             position: fixed;
             top: 0;
@@ -353,7 +351,6 @@
             transition: all 0.2s ease;
         }
 
-        /* Stile per l'errore sul visore della tastiera */
         .keyboard-input-display.display-error {
             color: var(--red-glow) !important;
             border-color: var(--red-glow) !important;
@@ -362,7 +359,6 @@
             letter-spacing: 2px !important;
         }
 
-        /* LAYOUT TASTIERA SU SCHERMO (LETTERE A SINISTRA / NUMERI A DESTRA) */
         .virtual-keyboard {
             display: flex;
             gap: 8px;
@@ -473,7 +469,7 @@
 
     <!-- MENU SELEZIONE MODALITÀ -->
     <div id="modeMenu" class="mode-grid">
-        <button onclick="setupMode('classic')">1. CLASSICA (OTP & TIMER)</button>
+        <button onclick="setupMode('classic')">1. CLASSICA (CODICE & TIMER)</button>
         <button onclick="setupMode('domination')">2. DOMINIO (CONTROLLO AREA)</button>
         <button onclick="setupMode('extraction')">3. ESTRAZIONE DATI</button>
         <button onclick="setupMode('snd')">4. SEARCH & DESTROY</button>
@@ -485,7 +481,7 @@
     <div id="setupSection" style="display: none;">
         <div class="setup-grid">
             <div class="setup-group">
-                <label>DURATA / TEMPO OBIETTIVO:</label>
+                <label>TEMPO TOTALE PARTITA:</label>
                 <select id="timerSelect">
                     <option value="10">10 Minuti</option>
                     <option value="15">15 Minuti</option>
@@ -496,25 +492,57 @@
                 </select>
             </div>
 
+            <div id="extractionSetupOptions" class="setup-group" style="display: none;">
+                <div style="margin-bottom: 8px;">
+                    <label>DURATA DOWNLOAD:</label>
+                    <select id="extractionDownloadSelect">
+                        <option value="2">2 Minuti</option>
+                        <option value="3">3 Minuti</option>
+                        <option value="5" selected>5 Minuti</option>
+                        <option value="10">10 Minuti</option>
+                        <option value="15">15 Minuti</option>
+                        <option value="20">20 Minuti</option>
+                    </select>
+                </div>
+                <div>
+                    <label>CODICI INTERMEDI:</label>
+                    <select id="extractionCodesSelect" onchange="updateExtractionMasterCodes()">
+                        <option value="0">0 (Solo avvio)</option>
+                        <option value="1">1 Codice Intermedio</option>
+                        <option value="2" selected>2 Codici Intermedi</option>
+                        <option value="3">3 Codici Intermedi</option>
+                        <option value="4">4 Codici Intermedi</option>
+                    </select>
+                </div>
+            </div>
+
             <div id="cpSetupOptions" class="setup-group" style="display: none;">
-                <label>DURATA PRESIDIO:</label>
-                <select id="cpDurationSelect">
-                    <option value="5" selected>5 Minuti</option>
-                    <option value="10">10 Minuti</option>
-                    <option value="15">15 Minuti</option>
-                    <option value="20">20 Minuti</option>
-                    <option value="30">30 Minuti</option>
-                </select>
+                <div style="margin-bottom: 8px;">
+                    <label>DURATA PRESIDIO:</label>
+                    <select id="cpDurationSelect">
+                        <option value="5" selected>5 Minuti</option>
+                        <option value="10">10 Minuti</option>
+                        <option value="15">15 Minuti</option>
+                        <option value="20">20 Minuti</option>
+                        <option value="30">30 Minuti</option>
+                    </select>
+                </div>
+                <div>
+                    <label>NUMERO CODICI:</label>
+                    <select id="cpCodesSelect" onchange="updateCpMasterCodes()">
+                        <option value="1">1 Codice</option>
+                        <option value="2">2 Codici</option>
+                        <option value="3" selected>3 Codici</option>
+                        <option value="4">4 Codici</option>
+                        <option value="5">5 Codici</option>
+                    </select>
+                </div>
             </div>
         </div>
 
         <div id="masterCodesDisplay" style="display: none; margin: 10px 0; background: rgba(0,0,0,0.4); padding: 8px; border-radius: 5px; border: 1px dashed var(--amber-glow);">
             <div style="font-size: 0.75rem; color: #aaa; margin-bottom: 4px;">CODICI GENERATI PER IL MASTER:</div>
-            <div style="display: flex; justify-content: space-around; gap: 8px;">
-                <div id="masterCode1" class="seven-segment" style="font-size: 1.3rem; color: #fff;">----</div>
-                <div id="masterCode2" class="seven-segment" style="font-size: 1.3rem; color: #fff;">----</div>
-                <div id="masterCode3" class="seven-segment" style="font-size: 1.3rem; color: #fff;">----</div>
-            </div>
+            <div id="masterCodesList" style="display: flex; justify-content: center; gap: 8px; flex-wrap: wrap;"></div>
         </div>
 
         <div id="wireSetupOptions" class="setup-grid" style="display: none;">
@@ -551,11 +579,7 @@
 
     <div id="checkpointCodesDisplay" style="display: none; margin: 8px 0; background: #050805; padding: 8px; border-radius: 4px; border: 2px solid #2a2000;">
         <div style="font-size: 0.75rem; color: var(--amber-glow); margin-bottom: 4px;">STATO CODICI PRESIDIO</div>
-        <div style="display: flex; justify-content: space-around; gap: 8px;">
-            <div id="cpCode1" class="seven-segment" style="font-size: 1.5rem; color: var(--amber-glow);">****</div>
-            <div id="cpCode2" class="seven-segment" style="font-size: 1.5rem; color: var(--amber-glow);">****</div>
-            <div id="cpCode3" class="seven-segment" style="font-size: 1.5rem; color: var(--amber-glow);">****</div>
-        </div>
+        <div id="checkpointCodesList" style="display: flex; justify-content: space-around; gap: 8px; flex-wrap: wrap;"></div>
     </div>
 
     <div id="progressText" class="progress-text" style="display: none;">DOWNLOAD: 0%</div>
@@ -569,7 +593,7 @@
     </div>
 
     <div id="unlockSection" style="display: none; margin: 10px 0;">
-        <button type="button" onclick="openKeyboardModal('otp')" style="font-size: 1.1rem; padding: 12px; background: #1a331e; border-color: var(--green-glow);">
+        <button type="button" onclick="openKeyboardModal('code')" style="font-size: 1.1rem; padding: 12px; background: #1a331e; border-color: var(--green-glow);">
             ⌨ INSERISCI CODICE
         </button>
     </div>
@@ -620,7 +644,7 @@
     <div id="appVersion" class="app-version"></div>
 </div>
 
-<!-- MODALE POPUP -->
+<!-- MODALE POPUP TASTIERA -->
 <div id="keyboardModal" class="modal-overlay">
     <div class="modal-content">
         <div class="close-modal-btn" onclick="closeKeyboardModal()">✕</div>
@@ -698,7 +722,6 @@
 </div>
 
 <script>
-    const SECRET_BASE32 = 'NEWG4ME4PPCELTIC';
     let currentMode = '';
     let targetPassword = '';
     let timerDurationMinutes = 30;
@@ -713,16 +736,20 @@
     let blueSeconds = 0;
     let domTargetSeconds = 0;
 
+    let extractionDownloadMinutes = 5;
+    let extractionIntermediateCodes = [];
+    let extractionCheckpoints = [];
+    let extractionNextCodeIndex = 0;
     let extractionPaused = false;
-    let checkpoint33Passed = false;
-    let checkpoint66Passed = false;
 
     let correctWire = '';
     let boomWire = '';
     let wireAccessPassword = '';
 
+    let classicCode = '';
+    let sndCode = '';
     let cpTargetCodes = [];
-    let cpFoundCodes = [false, false, false];
+    let cpFoundCodes = [];
     let secretPresidioDurationMinutes = 5;
     let cpPresidioInterval = null;
     let isPresidiando = false;
@@ -732,18 +759,17 @@
     let audioCtx = null;
 
     let currentInputCode = '';
-    let maxInputLength = 6;
+    let maxInputLength = 4;
     let isDisplayingError = false;
-    let keyboardTargetMode = 'otp'; // 'otp', 'wireSetup', 'wireAccess'
+    let keyboardTargetMode = 'code';
 
-    // Attivazione automatica della modalità Fullscreen al primo tocco
     document.addEventListener('click', () => {
         if (!document.fullscreenElement && document.documentElement.requestFullscreen) {
             document.documentElement.requestFullscreen().catch(() => {});
         }
     }, { once: true });
 
-    function openKeyboardModal(target = 'otp') {
+    function openKeyboardModal(target = 'code') {
         keyboardTargetMode = target;
         
         if (target === 'wireSetup') {
@@ -753,11 +779,7 @@
             maxInputLength = 10;
             currentInputCode = document.getElementById('wireAccessInput').value;
         } else {
-            if (currentMode === 'checkpoint') {
-                maxInputLength = 4;
-            } else {
-                maxInputLength = 6;
-            }
+            maxInputLength = 4;
             currentInputCode = '';
         }
 
@@ -828,7 +850,7 @@
             closeKeyboardModal();
             verifyWireAccess();
         } else {
-            handleOtpSubmit();
+            handleCodeSubmit();
         }
     }
 
@@ -892,6 +914,68 @@
         return res;
     }
 
+    function renderMasterCodes(items) {
+        const container = document.getElementById('masterCodesList');
+        if (!container) return;
+        container.innerHTML = '';
+        items.forEach(item => {
+            const box = document.createElement('div');
+            box.style.cssText = 'display: flex; flex-direction: column; align-items: center; background: rgba(0,0,0,0.5); padding: 4px 8px; border-radius: 4px; border: 1px solid var(--amber-glow); min-width: 65px; margin: 2px;';
+            
+            const lbl = document.createElement('div');
+            lbl.style.cssText = 'font-size: 0.65rem; color: var(--amber-glow); margin-bottom: 2px; text-transform: uppercase; font-weight: bold;';
+            lbl.innerText = item.label;
+            
+            const val = document.createElement('div');
+            val.className = 'seven-segment';
+            val.style.cssText = 'font-size: 1.3rem; color: #fff;';
+            val.innerText = item.code;
+            
+            box.appendChild(lbl);
+            box.appendChild(val);
+            container.appendChild(box);
+        });
+        document.getElementById('masterCodesDisplay').style.display = 'block';
+    }
+
+    function updateExtractionMasterCodes() {
+        const numIntermediate = parseInt(document.getElementById('extractionCodesSelect').value, 10);
+        extractionIntermediateCodes = [];
+        extractionCheckpoints = [];
+
+        const items = [];
+        for (let i = 1; i <= numIntermediate; i++) {
+            const pct = Math.floor((i * 100) / (numIntermediate + 1));
+            const code = generateAlphanumeric4();
+            extractionIntermediateCodes.push(code);
+            extractionCheckpoints.push(pct);
+            items.push({ label: `INT ${i} (${pct}%)`, code: code });
+        }
+
+        if (items.length > 0) {
+            renderMasterCodes(items);
+        } else {
+            document.getElementById('masterCodesDisplay').style.display = 'none';
+        }
+    }
+
+    function updateCpMasterCodes() {
+        const numCodes = parseInt(document.getElementById('cpCodesSelect').value, 10);
+        cpTargetCodes = [];
+        const items = [];
+        for (let i = 1; i <= numCodes; i++) {
+            const code = generateAlphanumeric4();
+            cpTargetCodes.push(code);
+            items.push({ label: `CP ${i}`, code: code });
+        }
+
+        if (items.length > 0) {
+            renderMasterCodes(items);
+        } else {
+            document.getElementById('masterCodesDisplay').style.display = 'none';
+        }
+    }
+
     fetch('version.txt')
         .then(response => response.text())
         .then(version => {
@@ -928,12 +1012,18 @@
         currentMode = '';
         activeDomFaction = null;
         extractionPaused = false;
-        checkpoint33Passed = false;
-        checkpoint66Passed = false;
+        extractionNextCodeIndex = 0;
         activeDownloadSeconds = 0;
         isPresidiando = false;
         currentPresidioSeconds = 0;
         currentInputCode = '';
+
+        classicCode = '';
+        extractionIntermediateCodes = [];
+        extractionCheckpoints = [];
+        sndCode = '';
+        cpTargetCodes = [];
+        cpFoundCodes = [];
 
         document.getElementById('modeMenu').style.display = 'grid';
         document.getElementById('modeTitle').innerText = 'SELEZIONA MODALITÀ';
@@ -942,6 +1032,7 @@
         document.getElementById('setupSection').style.display = 'none';
         document.getElementById('masterCodesDisplay').style.display = 'none';
         document.getElementById('cpSetupOptions').style.display = 'none';
+        document.getElementById('extractionSetupOptions').style.display = 'none';
         document.getElementById('wireSetupOptions').style.display = 'none';
         document.getElementById('passwordDisplay').style.display = 'none';
         document.getElementById('passwordDisplay').style.fontSize = '3rem';
@@ -976,46 +1067,50 @@
         document.getElementById('resetMenuBtn').style.display = 'inline-block';
         document.getElementById('wireSetupOptions').style.display = 'none';
         document.getElementById('cpSetupOptions').style.display = 'none';
+        document.getElementById('extractionSetupOptions').style.display = 'none';
         document.getElementById('masterCodesDisplay').style.display = 'none';
 
         if (mode === 'classic') {
             document.getElementById('modeTitle').innerText = 'MODALITÀ CLASSICA';
-            document.getElementById('instructionText').innerText = 'Imposta la durata per la generazione della combinazione.';
+            document.getElementById('instructionText').innerText = 'Imposta la durata. Annota il codice di sblocco master generato sotto.';
+            classicCode = generateAlphanumeric4();
+            renderMasterCodes([{ label: 'SBLOCCO', code: classicCode }]);
         } else if (mode === 'domination') {
             document.getElementById('modeTitle').innerText = 'MODALITÀ DOMINIO';
             document.getElementById('instructionText').innerText = 'Imposta il tempo di possesso totale per la vittoria di una fazione.';
         } else if (mode === 'extraction') {
             document.getElementById('modeTitle').innerText = 'MODALITÀ ESTRAZIONE DATI';
-            document.getElementById('instructionText').innerText = 'Il download impiegherà l\'80% del tempo totale, arrestandosi al 33% e 66% per gli OTP.';
+            document.getElementById('instructionText').innerText = 'Imposta i parametri di download e segnati i codici intermedi per lo sblocco.';
+            document.getElementById('extractionSetupOptions').style.display = 'block';
+            updateExtractionMasterCodes();
         } else if (mode === 'snd') {
             document.getElementById('modeTitle').innerText = 'MODALITÀ SEARCH & DESTROY';
-            document.getElementById('instructionText').innerText = 'Dispositivo in attesa di innesco. Imposta il tempo di detonazione post-armamento.';
+            document.getElementById('instructionText').innerText = 'Dispositivo in attesa di innesco. Annota il codice di disinnesco master generato sotto.';
+            sndCode = generateAlphanumeric4();
+            renderMasterCodes([{ label: 'DISINNESCO', code: sndCode }]);
         } else if (mode === 'wires') {
             document.getElementById('modeTitle').innerText = 'MODALITÀ TAGLIO CAVI';
             document.getElementById('instructionText').innerText = 'Imposta la password del pannello e assegna la funzione a ciascun cavo.';
             document.getElementById('wireSetupOptions').style.display = 'grid';
         } else if (mode === 'checkpoint') {
             document.getElementById('modeTitle').innerText = 'MODALITÀ CHECKPOINT';
-            document.getElementById('instructionText').innerText = 'Annota o crea gli indizi per i 3 codici qui sotto, imposta i timer e avvia il gioco.';
+            document.getElementById('instructionText').innerText = 'Annota o crea gli indizi per i codici qui sotto, imposta i timer e avvia il gioco.';
             document.getElementById('cpSetupOptions').style.display = 'block';
-            
-            cpTargetCodes = [generateAlphanumeric4(), generateAlphanumeric4(), generateAlphanumeric4()];
-            document.getElementById('masterCode1').innerText = cpTargetCodes[0];
-            document.getElementById('masterCode2').innerText = cpTargetCodes[1];
-            document.getElementById('masterCode3').innerText = cpTargetCodes[2];
-            document.getElementById('masterCodesDisplay').style.display = 'block';
+            updateCpMasterCodes();
         }
     }
 
     function startSelectedMode() {
         timerDurationMinutes = parseInt(document.getElementById('timerSelect').value, 10);
         document.getElementById('setupSection').style.display = 'none';
+        document.getElementById('masterCodesDisplay').style.display = 'none';
         requestWakeLock();
 
         if (currentMode === 'classic') {
             targetPassword = Math.floor(1000 + Math.random() * 9000).toString();
             document.getElementById('passwordDisplay').innerText = targetPassword;
             document.getElementById('passwordDisplay').style.display = 'block';
+            document.getElementById('passwordDisplay').style.fontSize = '3rem';
             document.getElementById('classicControls').style.display = 'block';
             document.getElementById('instructionText').innerText = 'Imposta questa password sul lucchetto, poi avvia il timer.';
         } 
@@ -1029,17 +1124,17 @@
             startDominationTimer();
         } 
         else if (currentMode === 'extraction') {
+            extractionDownloadMinutes = parseInt(document.getElementById('extractionDownloadSelect').value, 10);
             maxSeconds = timerDurationMinutes * 60;
             totalSeconds = maxSeconds;
             activeDownloadSeconds = 0;
-            checkpoint33Passed = false;
-            checkpoint66Passed = false;
+            extractionNextCodeIndex = 0;
             extractionPaused = false;
 
             document.getElementById('timerDisplay').style.display = 'block';
             document.getElementById('progressContainer').style.display = 'block';
             document.getElementById('progressText').style.display = 'block';
-            document.getElementById('instructionText').innerText = 'Download avviato. Il trasferimento dati e in corso...';
+            document.getElementById('instructionText').innerText = 'Download avviato. Il trasferimento dati è in corso...';
             startExtractionTimer();
         }
         else if (currentMode === 'snd') {
@@ -1071,20 +1166,23 @@
             startGenericTimer();
         }
         else if (currentMode === 'checkpoint') {
-            cpFoundCodes = [false, false, false];
+            const numCodes = cpTargetCodes.length;
+            cpFoundCodes = new Array(numCodes).fill(false);
             secretPresidioDurationMinutes = parseInt(document.getElementById('cpDurationSelect').value, 10);
             currentPresidioSeconds = 0;
 
-            document.getElementById('masterCodesDisplay').style.display = 'none';
             document.getElementById('cpSetupOptions').style.display = 'none';
             
-            document.getElementById('cpCode1').innerText = '****';
-            document.getElementById('cpCode2').innerText = '****';
-            document.getElementById('cpCode3').innerText = '****';
-            
-            document.getElementById('cpCode1').style.color = 'var(--amber-glow)';
-            document.getElementById('cpCode2').style.color = 'var(--amber-glow)';
-            document.getElementById('cpCode3').style.color = 'var(--amber-glow)';
+            const listContainer = document.getElementById('checkpointCodesList');
+            listContainer.innerHTML = '';
+            for (let i = 0; i < numCodes; i++) {
+                const codeElem = document.createElement('div');
+                codeElem.id = `cpCode${i + 1}`;
+                codeElem.className = 'seven-segment';
+                codeElem.style.cssText = 'font-size: 1.5rem; color: var(--amber-glow);';
+                codeElem.innerText = '****';
+                listContainer.appendChild(codeElem);
+            }
 
             document.getElementById('checkpointCodesDisplay').style.display = 'block';
             document.getElementById('unlockSection').style.display = 'block';
@@ -1094,7 +1192,7 @@
 
             totalSeconds = timerDurationMinutes * 60;
             document.getElementById('timerDisplay').style.display = 'block';
-            document.getElementById('instructionText').innerText = 'Trova gli indizi sul campo, inserisci i 3 codici per sbloccare il presidio.';
+            document.getElementById('instructionText').innerText = `Trova gli indizi sul campo, inserisci i ${numCodes} codici per sbloccare il presidio.`;
             startGenericTimer();
         }
     }
@@ -1119,10 +1217,10 @@
         document.getElementById('classicControls').style.display = 'none';
         document.getElementById('unlockSection').style.display = 'block';
         
-        maxInputLength = 6;
+        maxInputLength = 4;
         clearKey();
 
-        document.getElementById('instructionText').innerText = 'Inserisci l\'OTP per rivelare la password.';
+        document.getElementById('instructionText').innerText = 'Inserisci il codice per rivelare la password.';
         totalSeconds = timerDurationMinutes * 60;
         document.getElementById('timerDisplay').style.display = 'block';
         startGenericTimer();
@@ -1159,7 +1257,7 @@
     }
 
     function startExtractionTimer() {
-        const targetDownloadTimeSeconds = maxSeconds * 0.8;
+        const downloadDurationSeconds = extractionDownloadMinutes * 60;
 
         timerInterval = setInterval(() => {
             totalSeconds--;
@@ -1179,20 +1277,18 @@
             if (!extractionPaused) {
                 activeDownloadSeconds++;
                 
-                let percent = Math.floor((activeDownloadSeconds / targetDownloadTimeSeconds) * 100);
+                let percent = Math.floor((activeDownloadSeconds / downloadDurationSeconds) * 100);
                 if (percent > 100) percent = 100;
 
                 document.getElementById('progressBar').style.width = percent + '%';
                 document.getElementById('progressText').innerText = `DOWNLOAD: ${percent}%`;
 
-                if (percent >= 33 && !checkpoint33Passed) {
-                    pauseExtractionForOtp("BLOCCO TRASFERIMENTO (33%)! Inserisci l'OTP per sbloccare la banda.");
-                    return;
-                }
-
-                if (percent >= 66 && !checkpoint66Passed) {
-                    pauseExtractionForOtp("BLOCCO TRASFERIMENTO (66%)! Inserisci l'OTP per autorizzare l'ultimo blocco dati.");
-                    return;
+                if (extractionNextCodeIndex < extractionCheckpoints.length) {
+                    const targetPct = extractionCheckpoints[extractionNextCodeIndex];
+                    if (percent >= targetPct) {
+                        pauseExtractionForCode(`BLOCCO TRASFERIMENTO (${targetPct}%)! Inserisci il codice per sbloccare la banda.`);
+                        return;
+                    }
                 }
 
                 if (percent >= 100) {
@@ -1207,13 +1303,11 @@
         }, 1000);
     }
 
-    function pauseExtractionForOtp(msg) {
+    function pauseExtractionForCode(msg) {
         extractionPaused = true;
         document.getElementById('unlockSection').style.display = 'block';
-        
-        maxInputLength = 6;
+        maxInputLength = 4;
         clearKey();
-
         document.getElementById('instructionText').innerText = msg;
     }
 
@@ -1221,10 +1315,10 @@
         document.getElementById('sndControls').style.display = 'none';
         document.getElementById('unlockSection').style.display = 'block';
         
-        maxInputLength = 6;
+        maxInputLength = 4;
         clearKey();
 
-        document.getElementById('instructionText').innerText = 'ORDIGNO INNESCATO! I difensori devono inserire l\'OTP di disinnesco.';
+        document.getElementById('instructionText').innerText = 'ORDIGNO INNESCATO! I difensori devono inserire il codice di disinnesco.';
         totalSeconds = timerDurationMinutes * 60;
         document.getElementById('timerDisplay').style.display = 'block';
         
@@ -1236,7 +1330,7 @@
                 clearInterval(timerInterval);
                 document.getElementById('timerDisplay').innerText = 'BOOM!';
                 document.getElementById('timerDisplay').classList.add('timer-expired');
-                document.getElementById('instructionText').innerText = 'DETONAZIONE! L\'obiettivo e stato distrutto.';
+                document.getElementById('instructionText').innerText = 'DETONAZIONE! L\'obiettivo è stato distrutto.';
                 document.getElementById('unlockSection').style.display = 'none';
                 closeKeyboardModal();
                 triggerTimeoutAlert("TEMPO SCADUTO");
@@ -1250,13 +1344,13 @@
             document.getElementById('passwordDisplay').innerText = 'ORDIGNO DISINNESCATO';
             document.getElementById('passwordDisplay').style.fontSize = '1.8rem';
             document.getElementById('passwordDisplay').style.display = 'block';
-            document.getElementById('instructionText').innerText = 'MISSIONE COMPIUTA! Il circuito di innesco e stato neutralizzato.';
+            document.getElementById('instructionText').innerText = 'MISSIONE COMPIUTA! Il circuito di innesco è stato neutralizzato.';
             document.getElementById('wireControls').style.display = 'none';
         } else if (color === boomWire) {
             clearInterval(timerInterval);
             document.getElementById('timerDisplay').innerText = 'BOOM!';
             document.getElementById('timerDisplay').classList.add('timer-expired');
-            document.getElementById('instructionText').innerText = 'CAVO ERRATO! L\'ordigno e esploso all\'istante.';
+            document.getElementById('instructionText').innerText = 'CAVO ERRATO! L\'ordigno è esploso all\'istante.';
             document.getElementById('wireControls').style.display = 'none';
             triggerTimeoutAlert("TEMPO SCADUTO");
         } else {
@@ -1309,59 +1403,13 @@
         return `${mins.toString().padStart(2, '0')}:${remSecs.toString().padStart(2, '0')}`;
     }
 
-    function base32ToBuf(str) {
-        const base32chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567';
-        let bits = '';
-        let hex = '';
-        for (let i = 0; i < str.length; i++) {
-            const val = base32chars.indexOf(str.charAt(i).toUpperCase());
-            bits += val.toString(2).padStart(5, '0');
-        }
-        for (let i = 0; i + 4 <= bits.length; i += 4) {
-            const chunk = bits.substr(i, 4);
-            hex = hex + parseInt(chunk, 2).toString(16);
-        }
-        if (hex.length % 2 !== 0) hex = hex.substring(0, hex.length - 1);
-        const binary = new Uint8Array(hex.length / 2);
-        for (let i = 0; i < hex.length / 2; i++) {
-            binary[i] = parseInt(hex.substr(i * 2, 2), 16);
-        }
-        return binary.buffer;
-    }
-
-    async function generateTOTP(secret) {
-        const epoch = Math.floor(Date.now() / 1000);
-        const time = Math.floor(epoch / 30);
-        const timeBuf = new ArrayBuffer(8);
-        const view = new DataView(timeBuf);
-        view.setUint32(4, time, false);
-
-        const keyData = base32ToBuf(secret);
-        const cryptoKey = await crypto.subtle.importKey(
-            'raw', keyData, { name: 'HMAC', hash: 'SHA-1' }, false, ['sign']
-        );
-
-        const signature = await crypto.subtle.sign('HMAC', cryptoKey, timeBuf);
-        const sigBytes = new Uint8Array(signature);
-
-        const offset = sigBytes[sigBytes.length - 1] & 0xf;
-        const binary =
-            ((sigBytes[offset] & 0x7f) << 24) |
-            ((sigBytes[offset + 1] & 0xff) << 16) |
-            ((sigBytes[offset + 2] & 0xff) << 8) |
-            (sigBytes[offset + 3] & 0xff);
-
-        let otp = (binary % 1000000).toString();
-        return otp.padStart(6, '0');
-    }
-
-    async function handleOtpSubmit() {
+    function handleCodeSubmit() {
         if (isDisplayingError) return;
         const userInput = currentInputCode.trim().toUpperCase();
 
         if (currentMode === 'checkpoint') {
             let matchedIndex = -1;
-            for (let i = 0; i < 3; i++) {
+            for (let i = 0; i < cpTargetCodes.length; i++) {
                 if (cpTargetCodes[i] === userInput && !cpFoundCodes[i]) {
                     matchedIndex = i;
                     break;
@@ -1371,12 +1419,14 @@
             if (matchedIndex !== -1) {
                 cpFoundCodes[matchedIndex] = true;
                 const codeElem = document.getElementById(`cpCode${matchedIndex + 1}`);
-                codeElem.innerText = cpTargetCodes[matchedIndex];
-                codeElem.style.color = 'var(--green-glow)';
+                if (codeElem) {
+                    codeElem.innerText = cpTargetCodes[matchedIndex];
+                    codeElem.style.color = 'var(--green-glow)';
+                }
                 clearKey();
                 closeKeyboardModal();
 
-                if (cpFoundCodes[0] && cpFoundCodes[1] && cpFoundCodes[2]) {
+                if (cpFoundCodes.every(val => val === true)) {
                     document.getElementById('unlockSection').style.display = 'none';
                     document.getElementById('cpHoldSection').style.display = 'block';
                     document.getElementById('instructionText').innerText = 'TUTTI I CODICI INSERITI! Premi il pulsante per avviare il presidio dell\'area.';
@@ -1390,37 +1440,51 @@
             return;
         }
 
-        try {
-            const validOtp = await generateTOTP(SECRET_BASE32);
-            if (userInput === validOtp) {
+        if (currentMode === 'classic') {
+            if (userInput === classicCode) {
+                clearInterval(timerInterval);
                 clearKey();
                 closeKeyboardModal();
-                
-                if (currentMode === 'extraction') {
-                    document.getElementById('unlockSection').style.display = 'none';
-                    
-                    if (!checkpoint33Passed) {
-                        checkpoint33Passed = true;
-                    } else if (!checkpoint66Passed) {
-                        checkpoint66Passed = true;
-                    }
-                    
-                    extractionPaused = false;
-                    document.getElementById('instructionText').innerText = 'OTP corretto! Ripristino banda e avanzamento download...';
-                } 
-                else if (currentMode === 'classic' || currentMode === 'snd') {
-                    clearInterval(timerInterval);
-                    document.getElementById('passwordDisplay').innerText = targetPassword;
-                    document.getElementById('passwordDisplay').style.display = 'block';
-                    document.getElementById('instructionText').innerText = 'OBIETTIVO SBLOCCATO! Utilizza questa combinazione.';
-                    document.getElementById('unlockSection').style.display = 'none';
-                }
+                document.getElementById('passwordDisplay').innerText = targetPassword;
+                document.getElementById('passwordDisplay').style.display = 'block';
+                document.getElementById('instructionText').innerText = 'OBIETTIVO SBLOCCATO! Utilizza questa combinazione.';
+                document.getElementById('unlockSection').style.display = 'none';
             } else {
                 showKeyboardError('CODICE ERRATO');
             }
-        } catch (e) {
-            showKeyboardError('ERRORE TOTP');
-            console.error(e);
+            return;
+        }
+
+        if (currentMode === 'extraction') {
+            if (extractionNextCodeIndex < extractionIntermediateCodes.length) {
+                if (userInput === extractionIntermediateCodes[extractionNextCodeIndex]) {
+                    clearKey();
+                    closeKeyboardModal();
+                    document.getElementById('unlockSection').style.display = 'none';
+                    extractionNextCodeIndex++;
+                    extractionPaused = false;
+                    document.getElementById('instructionText').innerText = 'Codice corretto! Ripristino banda e avanzamento download...';
+                } else {
+                    showKeyboardError('CODICE ERRATO');
+                }
+            }
+            return;
+        }
+
+        if (currentMode === 'snd') {
+            if (userInput === sndCode) {
+                clearInterval(timerInterval);
+                clearKey();
+                closeKeyboardModal();
+                document.getElementById('passwordDisplay').innerText = 'ORDIGNO DISINNESCATO';
+                document.getElementById('passwordDisplay').style.fontSize = '1.8rem';
+                document.getElementById('passwordDisplay').style.display = 'block';
+                document.getElementById('instructionText').innerText = 'MISSIONE COMPIUTA! L\'ordigno è stato disinnescato con successo.';
+                document.getElementById('unlockSection').style.display = 'none';
+            } else {
+                showKeyboardError('CODICE ERRATO');
+            }
+            return;
         }
     }
 
