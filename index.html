@@ -2132,84 +2132,87 @@
     }
 
     // GESTIONE TIMER MEDEVAC
-    function startMedevacTimers() {
-        if (timerInterval) clearInterval(timerInterval);
-        document.getElementById('timerDisplay').classList.remove('timer-paused');
-        
+function startMedevacTimers() {
+        const bleedDurationSeconds = medevacBleedDurationMinutes * 60;
+        medevacBleedSeconds = bleedDurationSeconds;
+        isBleedingStopped = false;
+
         timerInterval = setInterval(() => {
             totalSeconds--;
-            if (!isBleedingStopped) {
-                medevacBleedSeconds--;
-            }
-            
             updateTimerUI(totalSeconds);
-            updateBleedingTimerUI(medevacBleedSeconds);
 
             if (totalSeconds <= 0) {
                 clearInterval(timerInterval);
                 document.getElementById('timerDisplay').innerText = 'TEMPO SCADUTO!';
                 document.getElementById('timerDisplay').classList.add('timer-expired');
-                document.getElementById('instructionText').innerText = 'TEMPO SCADUTO: Missione fallita.';
-                document.getElementById('medevacPlayerSection').style.display = 'none';
-                document.getElementById('stopBleedBtn').style.display = 'none';
-                triggerTimeoutAlert("TEMPO SCADUTO");
+                document.getElementById('instructionText').innerText = 'MISSIONE FALLITA: Tempo esaurito.';
+                triggerTimeoutAlert("TEMPO SCADUTO - MISSIONE FALLITA");
                 return;
             }
 
-            if (!isBleedingStopped && medevacBleedSeconds <= 0) {
-                clearInterval(timerInterval);
-                document.getElementById('timerDisplay').innerText = 'FERITO MORTO!';
-                document.getElementById('timerDisplay').classList.add('timer-expired');
-                document.getElementById('instructionText').innerText = 'DISSANGUAMENTO COMPLETATO! Il ferito è deceduto.';
-                document.getElementById('medevacPlayerSection').style.display = 'none';
-                document.getElementById('stopBleedBtn').style.display = 'none';
-                triggerTimeoutAlert("FERITO DECEDUTO - DISSANGUAMENTO!");
+            if (!isBleedingStopped && medevacBleedSeconds > 0) {
+                medevacBleedSeconds--;
+                updateBleedTimerUI();
+
+                if (medevacBleedSeconds <= 0) {
+                    clearInterval(timerInterval);
+                    document.getElementById('bleedTimerDisplay').innerText = 'DECEDUTO';
+                    document.getElementById('bleedTimerDisplay').classList.add('timer-expired');
+                    document.getElementById('instructionText').innerText = 'FERITO DECEDUTO: Sanguinamento non arrestato in tempo.';
+                    triggerTimeoutAlert("FERITO DECEDUTO");
+                }
             }
         }, 1000);
     }
 
-    function updateBleedingTimerUI(secs) {
-        if (secs < 0) secs = 0;
-        const mins = Math.floor(secs / 60);
-        const remSecs = secs % 60;
-        document.getElementById('bleedTimerDisplay').innerText = `${mins.toString().padStart(2, '0')}:${remSecs.toString().padStart(2, '0')}`;
+    function updateBleedTimerUI() {
+        const min = Math.floor(medevacBleedSeconds / 60);
+        const sec = medevacBleedSeconds % 60;
+        const display = document.getElementById('bleedTimerDisplay');
+        if (display) {
+            display.innerText = `${String(min).padStart(2, '0')}:${String(sec).padStart(2, '0')}`;
+        }
     }
 
     function stopBleeding() {
         isBleedingStopped = true;
-        const btn = document.getElementById('stopBleedBtn');
-        btn.innerText = 'SANGUINAMENTO ARRESTATO';
-        btn.style.background = '#122816';
-        btn.style.color = 'var(--green-glow)';
-        btn.style.borderColor = 'var(--green-dim)';
-        btn.disabled = true;
-        document.getElementById('instructionText').innerText = 'Sanguinamento bloccato! Inserisci i dati corretti del ferito e richiedi l\'Exfill.';
+        const stopBtn = document.getElementById('stopBleedBtn');
+        if (stopBtn) {
+            stopBtn.innerText = 'SANGUINAMENTO ARRESTATO';
+            stopBtn.style.background = '#0c283d';
+            stopBtn.style.color = '#6bc2ff';
+            stopBtn.style.borderColor = '#1c5b8a';
+            stopBtn.disabled = true;
+        }
+        document.getElementById('instructionText').innerText = 'Sanguinamento stabilizzato. Procedi con l\'inserimento dei dati ed esfiltrazione.';
     }
 
     function requestMedevacExfill() {
-        const pName = document.getElementById('medevacPlayerNameInput').value.trim().toUpperCase();
-        const pGender = document.getElementById('medevacPlayerGenderSelect').value;
-        const pCoord = document.getElementById('medevacPlayerCoordInput').value.trim().toUpperCase();
+        const playerName = document.getElementById('medevacPlayerNameInput').value.trim();
+        const playerCoord = document.getElementById('medevacPlayerCoordInput').value.trim();
+        const errorDiv = document.getElementById('errorMessage');
 
-        const mName = masterMedevacName.trim().toUpperCase();
-        const mGender = masterMedevacGender;
-        const mCoord = masterMedevacCoord.trim().toUpperCase();
+        if (!playerName || !playerCoord || playerMedevacWounds.length === 0) {
+            errorDiv.innerText = "Inserisci nome, seleziona almeno un tipo di ferita e inserisci le coordinate di esfiltrazione!";
+            return;
+        }
 
-        const woundsMatch = playerMedevacWounds.length === masterMedevacWounds.length &&
-            playerMedevacWounds.every(w => masterMedevacWounds.includes(w));
+        // Verifica corrispondenza con i dati inseriti dal Master
+        const nameMatch = playerName.toUpperCase() === masterMedevacName.toUpperCase();
+        const coordMatch = playerCoord.toUpperCase() === masterMedevacCoord.toUpperCase();
+        const woundsMatch = playerMedevacWounds.length === masterMedevacWounds.length && 
+                            playerMedevacWounds.every(w => masterMedevacWounds.includes(w));
 
-        if (pName === mName && pGender === mGender && pCoord === mCoord && woundsMatch) {
+        if (nameMatch && coordMatch && woundsMatch) {
+            errorDiv.innerText = '';
             clearInterval(timerInterval);
+            document.getElementById('instructionText').innerText = 'ESFILTRAZIONE MEDEVAC COMPLETATA CON SUCCESSO!';
             document.getElementById('medevacPlayerSection').style.display = 'none';
             document.getElementById('stopBleedBtn').style.display = 'none';
-            document.getElementById('passwordDisplay').innerText = 'MEDEVAC RIUSCITO';
-            document.getElementById('passwordDisplay').style.fontSize = 'clamp(1.4rem, 4dvh, 2rem)';
-            document.getElementById('passwordDisplay').style.display = 'flex';
-            document.getElementById('instructionText').innerText = 'ESTRAZIONE FERITO COMPLETATA CON SUCCESSO! VITTORIA!';
-            triggerTimeoutAlert("MEDEVAC COMPLETATO - VITTORIA!");
+            document.getElementById('medevacBleedDisplayContainer').style.display = 'none';
         } else {
-            document.getElementById('errorMessage').innerText = 'DATI ERRATI O INCOMPLETI! Verifica nome, genere, ferite o coordinate.';
-            setTimeout(() => { document.getElementById('errorMessage').innerText = ''; }, 3500);
+            errorDiv.innerText = 'DATI ERRATI: Nome, ferite o coordinate non corrispondono al profilo del ferito!';
+            setTimeout(() => { errorDiv.innerText = ''; }, 4000);
         }
     }
 
