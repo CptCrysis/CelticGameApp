@@ -75,7 +75,7 @@
             width: 100%;
             max-width: min(450px, 98vw);
             max-height: 98dvh;
-            overflow: hidden;
+            overflow-y: auto;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
@@ -494,49 +494,36 @@
             letter-spacing: 1px !important;
         }
 
-		.virtual-keyboard {
-			display: flex;
-			flex-direction: column;
-			gap: 8px;
-			margin: 8px 0;
-			padding: 4px;
-			width: 100%;
-		}
-
-        .keyboard-letters {
+        .virtual-keyboard {
             display: flex;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 12px;
+            flex-direction: column;
+            gap: 8px;
+            margin: 8px 0;
+            padding: 4px;
+            width: 100%;
         }
 
-        .keyboard-numbers {
-            display: flex;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 12px;
-            /* Rimosso align-self: center per consentire l'allineamento in alto con le lettere */
-            padding-left: 0;
-        }
         .key-btn {
-			width: calc((100% - (9 * 4px)) / 10); /* Fissa la larghezza esatta per tutti i tasti */
-			flex: 0 0 auto;                       /* Impedisce ai tasti di allargarsi nelle righe più corte */
-			height: clamp(38px, 5.5dvh, 46px);
-			padding: 0;
-			font-size: clamp(0.85rem, 1.9dvh, 1.05rem);
-			margin: 0;
-			border-radius: 6px;
-			display: flex;
-			align-items: center;
-			justify-content: center;
-			box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
-		}
+            width: calc((100% - (9 * 4px)) / 10);
+            flex: 0 0 auto;
+            height: clamp(38px, 5.5dvh, 46px);
+            padding: 0;
+            font-size: clamp(0.85rem, 1.9dvh, 1.05rem);
+            margin: 0;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
+        }
 
-		.key-row {
-			display: flex;
-			justify-content: center; 
-			gap: 4px;                 
-			margin-bottom: 6px;
-			width: 100%;
-		}
+        .key-row {
+            display: flex;
+            justify-content: center; 
+            gap: 4px;                 
+            margin-bottom: 6px;
+            width: 100%;
+        }
 
         .close-modal-btn {
             position: absolute;
@@ -621,12 +608,14 @@
 
     <!-- MENU SELEZIONE MODALITÀ -->
     <div id="modeMenu" class="mode-grid">
-        <button onclick="setupMode('classic')">1. CLASSICA (CODICE & TIMER)</button>
-        <button onclick="setupMode('domination')">2. DOMINIO (CONTROLLO AREA)</button>
+        <button onclick="setupMode('classic')">1. LUCCHETTO</button>
+        <button onclick="setupMode('domination')">2. DOMINIO</button>
         <button onclick="setupMode('extraction')">3. ESTRAZIONE DATI</button>
         <button onclick="setupMode('snd')">4. SEARCH & DESTROY</button>
         <button onclick="setupMode('wires')">5. TAGLIO CAVI</button>
         <button onclick="setupMode('checkpoint')">6. CHECKPOINT</button>
+        <button onclick="setupMode('coords')">7. COORDINATE</button>
+        <button onclick="setupMode('medevac')">8. MEDEVAC</button>
     </div>
 
     <!-- SEZIONE SETUP COMUNE -->
@@ -651,7 +640,7 @@
                 </div>
             </div>
 
-            <!-- OPZIONI ESTRAZIONE RAGGRUPPATE E ALLINEATE -->
+            <!-- OPZIONI ESTRAZIONE -->
             <div id="extractionSetupOptions" style="display: none; contents: true;">
                 <div class="setup-group">
                     <label>DURATA DOWNLOAD:</label>
@@ -690,7 +679,7 @@
                 </div>
             </div>
 
-            <!-- OPZIONI CHECKPOINT RAGGRUPPATE E ALLINEATE -->
+            <!-- OPZIONI CHECKPOINT -->
             <div id="cpSetupOptions" style="display: none; contents: true;">
                 <div class="setup-group">
                     <label>DURATA PRESIDIO:</label>
@@ -725,6 +714,130 @@
                         </div>
                         <input type="hidden" id="cpCodesSelect" value="3">
                     </div>
+                </div>
+            </div>
+
+            <!-- OPZIONI COORDINATE -->
+            <div id="coordsSetupOptions" style="display: none; contents: true;">
+                <div class="setup-group">
+                    <label>NUMERO COORDINATE:</label>
+                    <div class="custom-select-wrapper" id="coordsCountWrapper">
+                        <div class="custom-select-trigger" onclick="toggleCustomSelect('coordsCountWrapper', event)">
+                            <span>3 Coordinate</span>
+                            <span class="arrow">▼</span>
+                        </div>
+                        <div class="custom-select-options">
+                            <div class="custom-option" data-value="1" onclick="selectCustomOption('coordsCountWrapper', '1', '1 Coord')">1 Coord</div>
+                            <div class="custom-option" data-value="2" onclick="selectCustomOption('coordsCountWrapper', '2', '2 Coord')">2 Coord</div>
+                            <div class="custom-option selected" data-value="3" onclick="selectCustomOption('coordsCountWrapper', '3', '3 Coord')">3 Coord</div>
+                            <div class="custom-option" data-value="4" onclick="selectCustomOption('coordsCountWrapper', '4', '4 Coord')">4 Coord</div>
+                            <div class="custom-option" data-value="5" onclick="selectCustomOption('coordsCountWrapper', '5', '5 Coord')">5 Coord</div>
+                        </div>
+                        <input type="hidden" id="coordsCountSelect" value="3">
+                    </div>
+                </div>
+                
+                <!-- CONTENITORE INPUT MANUALI COORDINATE -->
+                <div id="coordsInputsContainer" class="setup-group" style="grid-column: 1 / -1; display: flex; flex-direction: column; gap: 6px;"></div>
+
+                <div class="setup-group">
+                    <label>TIPO MISSIONE:</label>
+                    <div class="custom-select-wrapper" id="coordsTypeWrapper">
+                        <div class="custom-select-trigger" onclick="toggleCustomSelect('coordsTypeWrapper', event)">
+                            <span>Richiesta Exfil</span>
+                            <span class="arrow">▼</span>
+                        </div>
+                        <div class="custom-select-options">
+                            <div class="custom-option selected" data-value="exfil" onclick="selectCustomOption('coordsTypeWrapper', 'exfil', 'Richiesta Exfil')">Exfil</div>
+                            <div class="custom-option" data-value="strike" onclick="selectCustomOption('coordsTypeWrapper', 'strike', 'Attacco Artiglieria')">Artiglieria</div>
+                        </div>
+                        <input type="hidden" id="coordsTypeSelect" value="exfil">
+                    </div>
+                </div>
+
+                <!-- BERSAGLIO CORRETTO ARTIGLIERIA -->
+                <div class="setup-group" id="coordsTargetGroup" style="display: none;">
+                    <label>BERSAGLIO CORRETTO:</label>
+                    <div class="custom-select-wrapper" id="coordsTargetWrapper">
+                        <div class="custom-select-trigger" onclick="toggleCustomSelect('coordsTargetWrapper', event)">
+                            <span>Coord. 1</span>
+                            <span class="arrow">▼</span>
+                        </div>
+                        <div class="custom-select-options" id="coordsTargetOptions">
+                            <!-- Popolato dinamicamente da JS -->
+                        </div>
+                        <input type="hidden" id="coordsTargetSelect" value="1">
+                    </div>
+                </div>
+
+                <div class="setup-group">
+                    <label>DURATA FASE FINALE:</label>
+                    <div class="custom-select-wrapper" id="coordsFinalTimerWrapper">
+                        <div class="custom-select-trigger" onclick="toggleCustomSelect('coordsFinalTimerWrapper', event)">
+                            <span>3 Minuti</span>
+                            <span class="arrow">▼</span>
+                        </div>
+                        <div class="custom-select-options">
+                            <div class="custom-option" data-value="1" onclick="selectCustomOption('coordsFinalTimerWrapper', '1', '1 Minuto')">1 Min</div>
+                            <div class="custom-option" data-value="2" onclick="selectCustomOption('coordsFinalTimerWrapper', '2', '2 Minuti')">2 Min</div>
+                            <div class="custom-option selected" data-value="3" onclick="selectCustomOption('coordsFinalTimerWrapper', '3', '3 Minuti')">3 Min</div>
+                            <div class="custom-option" data-value="5" onclick="selectCustomOption('coordsFinalTimerWrapper', '5', '5 Minuti')">5 Min</div>
+                            <div class="custom-option" data-value="10" onclick="selectCustomOption('coordsFinalTimerWrapper', '10', '10 Minuti')">10 Min</div>
+                        </div>
+                        <input type="hidden" id="coordsFinalTimerSelect" value="3">
+                    </div>
+                </div>
+            </div>
+
+            <!-- OPZIONI MEDEVAC -->
+            <div id="medevacSetupOptions" style="display: none; contents: true;">
+                <div class="setup-group">
+                    <label>TEMPO DISSANGUAMENTO:</label>
+                    <div class="custom-select-wrapper" id="medevacBleedWrapper">
+                        <div class="custom-select-trigger" onclick="toggleCustomSelect('medevacBleedWrapper', event)">
+                            <span>3 Minuti</span>
+                            <span class="arrow">▼</span>
+                        </div>
+                        <div class="custom-select-options">
+                            <div class="custom-option" data-value="1" onclick="selectCustomOption('medevacBleedWrapper', '1', '1 Minuto')">1 Min</div>
+                            <div class="custom-option selected" data-value="3" onclick="selectCustomOption('medevacBleedWrapper', '3', '3 Minuti')">3 Min</div>
+                            <div class="custom-option" data-value="5" onclick="selectCustomOption('medevacBleedWrapper', '5', '5 Minuti')">5 Min</div>
+                            <div class="custom-option" data-value="10" onclick="selectCustomOption('medevacBleedWrapper', '10', '10 Minuti')">10 Min</div>
+                            <div class="custom-option" data-value="15" onclick="selectCustomOption('medevacBleedWrapper', '15', '15 Minuti')">15 Min</div>
+                        </div>
+                        <input type="hidden" id="medevacBleedSelect" value="3">
+                    </div>
+                </div>
+                <div class="setup-group">
+                    <label>NOME FERITO:</label>
+                    <input type="text" id="medevacMasterNameInput" placeholder="Tocca per inserire" readonly inputmode="none" onclick="openKeyboardModal('medevacMasterName')">
+                </div>
+                <div class="setup-group">
+                    <label>GENERE FERITO:</label>
+                    <div class="custom-select-wrapper" id="medevacMasterGenderWrapper">
+                        <div class="custom-select-trigger" onclick="toggleCustomSelect('medevacMasterGenderWrapper', event)">
+                            <span>M</span>
+                            <span class="arrow">▼</span>
+                        </div>
+                        <div class="custom-select-options">
+                            <div class="custom-option selected" data-value="M" onclick="selectCustomOption('medevacMasterGenderWrapper', 'M', 'M')">M</div>
+                            <div class="custom-option" data-value="F" onclick="selectCustomOption('medevacMasterGenderWrapper', 'F', 'F')">F</div>
+                        </div>
+                        <input type="hidden" id="medevacMasterGenderSelect" value="M">
+                    </div>
+                </div>
+                <div class="setup-group" style="grid-column: 1 / -1;">
+                    <label>TIPO FERITA (SELEZIONA UNA O PIÙ):</label>
+                    <div id="medevacMasterWoundsContainer" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 4px; margin-top: 4px;">
+                        <div class="custom-option wound-checkbox" data-wound="braccio" onclick="toggleWoundMaster('braccio')">BRACCIO</div>
+                        <div class="custom-option wound-checkbox" data-wound="torace" onclick="toggleWoundMaster('torace')">TORACE</div>
+                        <div class="custom-option wound-checkbox" data-wound="gambe" onclick="toggleWoundMaster('gambe')">GAMBE</div>
+                        <div class="custom-option wound-checkbox" data-wound="testa" onclick="toggleWoundMaster('testa')">TESTA</div>
+                    </div>
+                </div>
+                <div class="setup-group" style="grid-column: 1 / -1;">
+                    <label>COORDINATE ESFILTRAZIONE:</label>
+                    <input type="text" id="medevacMasterCoordInput" placeholder="Tocca per inserire" readonly inputmode="none" onclick="openKeyboardModal('medevacMasterCoord')">
                 </div>
             </div>
         </div>
@@ -780,8 +893,15 @@
     <div id="passwordDisplay" class="code-display seven-segment" style="display: none;">----</div>
     <div id="timerDisplay" class="timer-display seven-segment" style="display: none;">00:00</div>
 
+    <!-- DISPLAY SPECIFICO MEDEVAC (DISSANGUAMENTO) -->
+    <div id="medevacBleedDisplayContainer" style="display: none; background: var(--screen-bg); border: 2px solid var(--red-glow); padding: 6px; border-radius: 6px; margin: 6px 0;">
+        <div style="font-size: 0.7rem; color: var(--red-glow); margin-bottom: 2px; font-weight: bold;">TEMPO DISSANGUAMENTO</div>
+        <div id="bleedTimerDisplay" class="seven-segment" style="font-size: 2.2rem; color: var(--red-glow); text-shadow: 0 0 10px rgba(255,51,51,0.8);">03:00</div>
+    </div>
+    <button id="stopBleedBtn" class="btn-hold" onclick="stopBleeding()" style="display: none; background: #380d0d; color: #ff7777; border-color: #8a2020; margin-bottom: 6px;">BLOCCA SANGUINAMENTO</button>
+
     <div id="checkpointCodesDisplay" style="display: none; margin: 6px 0; background: var(--screen-bg); padding: 6px; border-radius: 6px; border: 2px solid #3d3000;">
-        <div style="font-size: 0.7rem; color: var(--amber-glow); margin-bottom: 2px;">STATO CODICI PRESIDIO</div>
+        <div id="checkpointCodesTitle" style="font-size: 0.7rem; color: var(--amber-glow); margin-bottom: 2px;">STATO CODICI PRESIDIO</div>
         <div id="checkpointCodesList" style="display: flex; justify-content: space-around; gap: 6px; flex-wrap: wrap;"></div>
     </div>
 
@@ -797,9 +917,50 @@
 
     <div id="unlockSection" style="display: none; margin: 6px 0;">
         <button type="button" onclick="openKeyboardModal('code')" style="font-size: clamp(0.85rem, 1.8dvh, 1.1rem); padding: clamp(8px, 1.5dvh, 12px); background: #18331d; border-color: var(--green-glow);">
-            ⌨ INSERISCI CODICE
+            INSERISCI CODICE / COORDINATA
         </button>
     </div>
+
+    <!-- SEZIONE AZIONI MEDEVAC (GIOCATORI) -->
+    <div id="medevacPlayerSection" style="display: none; margin: 6px 0; text-align: left;">
+        <div class="setup-grid" style="margin: 0 0 6px 0;">
+            <div class="setup-group">
+                <label>NOME FERITO:</label>
+                <input type="text" id="medevacPlayerNameInput" placeholder="Tocca per inserire" readonly inputmode="none" onclick="openKeyboardModal('medevacPlayerName')">
+            </div>
+            <div class="setup-group">
+                <label>GENERE FERITO:</label>
+                <div class="custom-select-wrapper" id="medevacPlayerGenderWrapper">
+                    <div class="custom-select-trigger" onclick="toggleCustomSelect('medevacPlayerGenderWrapper', event)">
+                        <span>M</span>
+                        <span class="arrow">▼</span>
+                    </div>
+                    <div class="custom-select-options">
+                        <div class="custom-option selected" data-value="M" onclick="selectCustomOption('medevacPlayerGenderWrapper', 'M', 'M')">M</div>
+                        <div class="custom-option" data-value="F" onclick="selectCustomOption('medevacPlayerGenderWrapper', 'F', 'F')">F</div>
+                    </div>
+                    <input type="hidden" id="medevacPlayerGenderSelect" value="M">
+                </div>
+            </div>
+            <div class="setup-group" style="grid-column: 1 / -1;">
+                <label>TIPO FERITA (SELEZIONA UNA O PIÙ):</label>
+                <div id="medevacPlayerWoundsContainer" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 4px; margin-top: 4px;">
+                    <div class="custom-option wound-checkbox" data-wound="braccio" onclick="toggleWoundPlayer('braccio')">BRACCIO</div>
+                    <div class="custom-option wound-checkbox" data-wound="torace" onclick="toggleWoundPlayer('torace')">TORACE</div>
+                    <div class="custom-option wound-checkbox" data-wound="gambe" onclick="toggleWoundPlayer('gambe')">GAMBE</div>
+                    <div class="custom-option wound-checkbox" data-wound="testa" onclick="toggleWoundPlayer('testa')">TESTA</div>
+                </div>
+            </div>
+            <div class="setup-group" style="grid-column: 1 / -1;">
+                <label>COORDINATE ESFILTRAZIONE:</label>
+                <input type="text" id="medevacPlayerCoordInput" placeholder="Tocca per inserire" readonly inputmode="none" onclick="openKeyboardModal('medevacPlayerCoord')">
+            </div>
+        </div>
+        <button type="button" class="btn-green" onclick="requestMedevacExfill()" style="font-size: clamp(0.85rem, 1.8dvh, 1.1rem); padding: clamp(10px, 1.8dvh, 14px);">RICHIEDI EXFILL</button>
+    </div>
+
+    <!-- SEZIONE AZIONI COORDINATE (EXFIL / BOMBARDAMENTO) -->
+    <div id="coordsActionSection" style="display: none; margin: 6px 0;"></div>
 
     <div id="wireAccessSection" style="display: none; margin: 6px 0;">
         <input type="password" id="wireAccessInput" placeholder="Password Pannello (Tocca qui)" readonly inputmode="none" onclick="openKeyboardModal('wireAccess')" style="margin-bottom: 6px;">
@@ -854,11 +1015,9 @@
         
         <div id="keyboardDisplay" class="keyboard-input-display seven-segment"></div>
 
-      <!-- TASTIERA ARMONICA CORRETTA E ALLINEATA -->
         <div class="virtual-keyboard">
-            <!-- TASTIERA QWERTY E NUMERICA -->
             <div class="keyboard-column" style="flex: 2.2;">
-                <!-- 1° Riga Lettere: Q W E R T Y U I O P -->
+                <!-- 1° Riga Lettere -->
                 <div class="key-row">
                     <button type="button" class="key-btn" onclick="appendKey('Q')">Q</button>
                     <button type="button" class="key-btn" onclick="appendKey('W')">W</button>
@@ -871,7 +1030,7 @@
                     <button type="button" class="key-btn" onclick="appendKey('O')">O</button>
                     <button type="button" class="key-btn" onclick="appendKey('P')">P</button>
                 </div>
-                <!-- 2° Riga Lettere: A S D F G H J K L -->
+                <!-- 2° Riga Lettere -->
                 <div class="key-row">
                     <button type="button" class="key-btn" onclick="appendKey('A')">A</button>
                     <button type="button" class="key-btn" onclick="appendKey('S')">S</button>
@@ -883,7 +1042,7 @@
                     <button type="button" class="key-btn" onclick="appendKey('K')">K</button>
                     <button type="button" class="key-btn" onclick="appendKey('L')">L</button>
                 </div>
-                <!-- 3° Riga Lettere + CLR: Z X C V B N M -->
+                <!-- 3° Riga Lettere + DEL -->
                 <div class="key-row">
                     <button type="button" class="key-btn" onclick="appendKey('Z')">Z</button>
                     <button type="button" class="key-btn" onclick="appendKey('X')">X</button>
@@ -894,7 +1053,7 @@
                     <button type="button" class="key-btn" onclick="appendKey('M')">M</button>
                     <button type="button" class="key-btn btn-red" onclick="clearKey()">DEL</button>
                 </div>
-                <!-- 4° Riga: Numeri 0-9 integrati in basso (stile smartphone) -->
+                <!-- 4° Riga: Numeri 0-9 -->
                 <div class="key-row" style="margin-top: 4px;">
                     <button type="button" class="key-btn" onclick="appendKey('1')">1</button>
                     <button type="button" class="key-btn" onclick="appendKey('2')">2</button>
@@ -906,6 +1065,12 @@
                     <button type="button" class="key-btn" onclick="appendKey('8')">8</button>
                     <button type="button" class="key-btn" onclick="appendKey('9')">9</button>
                     <button type="button" class="key-btn" onclick="appendKey('0')">0</button>
+                </div>				
+                <!-- 5° Riga: Simboli e Spazio per Coordinate Reali -->
+                <div class="key-row" style="margin-top: 4px;">
+                    <button type="button" class="key-btn" onclick="appendKey('.')">.</button>
+                    <button type="button" class="key-btn" onclick="appendKey(' ')" style="flex: 2;">SPAZIO</button>
+					<button type="button" class="key-btn" onclick="appendKey(',')">,</button>
                 </div>
             </div>
         </div>
@@ -949,6 +1114,23 @@
     let cpPresidioInterval = null;
     let isPresidiando = false;
     let currentPresidioSeconds = 0;
+
+    // VARIABILI MODALITÀ COORDINATE
+    let coordsTargetList = [];
+    let coordsFoundList = [];
+    let coordsMissionType = 'exfil'; 
+    let coordsCorrectTargetIndex = 1;
+    let coordsFinalMinutes = 3;
+    let coordsPhase = 'search'; 
+
+    // VARIABILI MODALITÀ MEDEVAC
+    let medevacBleedDurationMinutes = 3;
+    let medevacBleedSeconds = 0;
+    let isBleedingStopped = false;
+    let masterMedevacName = '';
+    let masterMedevacGender = 'M';
+    let masterMedevacWounds = [];
+    let masterMedevacCoord = '';
 
     let alarmInterval = null;
     let audioCtx = null;
@@ -1002,7 +1184,51 @@
             updateExtractionMasterCodes();
         } else if (wrapperId === 'cpCodesWrapper') {
             updateCpMasterCodes();
+        } else if (wrapperId === 'coordsCountWrapper') {
+            updateCoordsMasterCodes();
+        } else if (wrapperId === 'coordsTypeWrapper') {
+            const targetGroup = document.getElementById('coordsTargetGroup');
+            if (targetGroup) {
+                targetGroup.style.display = (val === 'strike') ? 'block' : 'none';
+            }
         }
+    }
+
+    // GESTIONE FERITE MULTIPLE MEDEVAC
+    function toggleWoundMaster(wound) {
+        const idx = masterMedevacWounds.indexOf(wound);
+        if (idx > -1) {
+            masterMedevacWounds.splice(idx, 1);
+        } else {
+            masterMedevacWounds.push(wound);
+        }
+        updateWoundUI('master');
+    }
+
+    let playerMedevacWounds = [];
+    function toggleWoundPlayer(wound) {
+        const idx = playerMedevacWounds.indexOf(wound);
+        if (idx > -1) {
+            playerMedevacWounds.splice(idx, 1);
+        } else {
+            playerMedevacWounds.push(wound);
+        }
+        updateWoundUI('player');
+    }
+
+    function updateWoundUI(type) {
+        const containerId = type === 'master' ? 'medevacMasterWoundsContainer' : 'medevacPlayerWoundsContainer';
+        const selectedArr = type === 'master' ? masterMedevacWounds : playerMedevacWounds;
+        const container = document.getElementById(containerId);
+        if (!container) return;
+        container.querySelectorAll('.wound-checkbox').forEach(el => {
+            const w = el.getAttribute('data-wound');
+            if (selectedArr.includes(w)) {
+                el.classList.add('selected');
+            } else {
+                el.classList.remove('selected');
+            }
+        });
     }
 
     document.addEventListener('click', (e) => {
@@ -1021,14 +1247,30 @@
     function openKeyboardModal(target = 'code') {
         keyboardTargetMode = target;
         
-        if (target === 'wireSetup') {
+        if (target === 'wireSetup' || target === 'wireAccess') {
             maxInputLength = 10;
-            currentInputCode = document.getElementById('wireAccessPasswordInput').value;
-        } else if (target === 'wireAccess') {
+            currentInputCode = target === 'wireSetup' ? document.getElementById('wireAccessPasswordInput').value : document.getElementById('wireAccessInput').value;
+        } else if (target.startsWith('coord_')) {
+            const idx = target.split('_')[1];
             maxInputLength = 10;
-            currentInputCode = document.getElementById('wireAccessInput').value;
+            const inp = document.getElementById(`coordInput_${idx}`);
+            currentInputCode = inp ? inp.value : '';
+        } else if (target === 'medevacMasterName' || target === 'medevacPlayerName') {
+            maxInputLength = 20;
+            currentInputCode = target === 'medevacMasterName' ? document.getElementById('medevacMasterNameInput').value : document.getElementById('medevacPlayerNameInput').value;
+        } else if (target === 'medevacMasterCoord' || target === 'medevacPlayerCoord') {
+            maxInputLength = 15;
+            currentInputCode = target === 'medevacMasterCoord' ? document.getElementById('medevacMasterCoordInput').value : document.getElementById('medevacPlayerCoordInput').value;
         } else {
-            maxInputLength = 4;
+            if (currentMode === 'coords') {
+                let maxLen = 4;
+                coordsTargetList.forEach(c => {
+                    if (c.length > maxLen) maxLen = c.length;
+                });
+                maxInputLength = maxLen;
+            } else {
+                maxInputLength = 4;
+            }
             currentInputCode = '';
         }
 
@@ -1047,6 +1289,19 @@
         const display = document.getElementById('keyboardDisplay');
         if (display && !isDisplayingError) {
             display.innerText = currentInputCode;
+            if (currentInputCode.length > 8) {
+                display.style.fontSize = 'clamp(1rem, 2.5dvh, 1.3rem)';
+                display.style.letterSpacing = '1px';
+            } else if (currentInputCode.length > 5) {
+                display.style.fontSize = 'clamp(1.2rem, 3dvh, 1.6rem)';
+                display.style.letterSpacing = '2px';
+            } else if (currentInputCode.length > 4) {
+                display.style.fontSize = 'clamp(1.4rem, 3.8dvh, 1.8rem)';
+                display.style.letterSpacing = '3px';
+            } else {
+                display.style.fontSize = 'clamp(1.8rem, 4.8dvh, 2.4rem)';
+                display.style.letterSpacing = '6px';
+            }
         }
     }
 
@@ -1074,14 +1329,6 @@
         }
     }
 
-    function deleteKey() {
-        if (isDisplayingError) return;
-        if (currentInputCode.length > 0) {
-            currentInputCode = currentInputCode.slice(0, -1);
-            updateKeyboardDisplay();
-        }
-    }
-
     function clearKey() {
         isDisplayingError = false;
         const display = document.getElementById('keyboardDisplay');
@@ -1098,6 +1345,24 @@
             document.getElementById('wireAccessInput').value = currentInputCode;
             closeKeyboardModal();
             verifyWireAccess();
+        } else if (keyboardTargetMode.startsWith('coord_')) {
+            const idx = keyboardTargetMode.split('_')[1];
+            const inp = document.getElementById(`coordInput_${idx}`);
+            if (inp) inp.value = currentInputCode.trim().toUpperCase();
+            closeKeyboardModal();
+            refreshCoordsMasterCodesList();
+        } else if (keyboardTargetMode === 'medevacMasterName') {
+            document.getElementById('medevacMasterNameInput').value = currentInputCode.trim().toUpperCase();
+            closeKeyboardModal();
+        } else if (keyboardTargetMode === 'medevacMasterCoord') {
+            document.getElementById('medevacMasterCoordInput').value = currentInputCode.trim().toUpperCase();
+            closeKeyboardModal();
+        } else if (keyboardTargetMode === 'medevacPlayerName') {
+            document.getElementById('medevacPlayerNameInput').value = currentInputCode.trim().toUpperCase();
+            closeKeyboardModal();
+        } else if (keyboardTargetMode === 'medevacPlayerCoord') {
+            document.getElementById('medevacPlayerCoordInput').value = currentInputCode.trim().toUpperCase();
+            closeKeyboardModal();
         } else {
             handleCodeSubmit();
         }
@@ -1251,6 +1516,79 @@
         }
     }
 
+    function updateCoordsMasterCodes() {
+        const numCoords = parseInt(document.getElementById('coordsCountSelect').value, 10);
+        const container = document.getElementById('coordsInputsContainer');
+
+        if (container) {
+            container.innerHTML = '<label style="font-size: clamp(0.65rem, 1.3dvh, 0.75rem); color: #7a9e82; text-transform: uppercase;">COORDINATE MANUALI:</label>';
+            for (let i = 1; i <= numCoords; i++) {
+                const inputGroup = document.createElement('div');
+                inputGroup.style.cssText = 'display: flex; gap: 6px; align-items: center; width: 100%;';
+                
+                const label = document.createElement('span');
+                label.style.cssText = 'font-size: 0.75rem; color: #a3c2aa; min-width: 65px; font-weight: bold;';
+                label.innerText = `COORD ${i}:`;
+                
+                const input = document.createElement('input');
+                input.type = 'text';
+                input.id = `coordInput_${i}`;
+                input.placeholder = `Tocca per inserire`;
+                input.style.textAlign = 'center';
+                input.style.flex = '1';
+                input.readOnly = true;
+                const coordIdx = i;
+                input.onclick = function() {
+                    openKeyboardModal(`coord_${coordIdx}`);
+                };
+
+                inputGroup.appendChild(label);
+                inputGroup.appendChild(input);
+                container.appendChild(inputGroup);
+            }
+        }
+
+        const targetOptionsContainer = document.getElementById('coordsTargetOptions');
+        if (targetOptionsContainer) {
+            targetOptionsContainer.innerHTML = '';
+            for (let i = 1; i <= numCoords; i++) {
+                const opt = document.createElement('div');
+                opt.className = `custom-option${i === 1 ? ' selected' : ''}`;
+                opt.setAttribute('data-value', String(i));
+                opt.innerText = `Coord. ${i}`;
+                opt.onclick = function() {
+                    selectCustomOption('coordsTargetWrapper', String(i), `Coord. ${i}`);
+                };
+                targetOptionsContainer.appendChild(opt);
+            }
+
+            selectCustomOption('coordsTargetWrapper', '1', 'Coord. 1');
+        }
+
+        refreshCoordsMasterCodesList();
+    }
+
+    function refreshCoordsMasterCodesList() {
+        const numCoords = parseInt(document.getElementById('coordsCountSelect').value, 10);
+        coordsTargetList = [];
+        const items = [];
+
+        for (let i = 1; i <= numCoords; i++) {
+            const inp = document.getElementById(`coordInput_${i}`);
+            let val = inp ? inp.value.trim().toUpperCase() : '';
+            if (val) {
+                coordsTargetList.push(val);
+                items.push({ label: `COORD ${i}`, code: val });
+            }
+        }
+
+        if (items.length > 0) {
+            renderMasterCodes(items);
+        } else {
+            document.getElementById('masterCodesDisplay').style.display = 'none';
+        }
+    }
+
     fetch('version.txt')
         .then(response => response.text())
         .then(version => {
@@ -1301,6 +1639,18 @@
         sndCode = '';
         cpTargetCodes = [];
         cpFoundCodes = [];
+        
+        coordsTargetList = [];
+        coordsFoundList = [];
+        coordsCorrectTargetIndex = 1;
+        coordsPhase = 'search';
+
+        masterMedevacName = '';
+        masterMedevacGender = 'M';
+        masterMedevacWounds = [];
+        masterMedevacCoord = '';
+        playerMedevacWounds = [];
+        isBleedingStopped = false;
 
         document.getElementById('modeMenu').style.display = 'grid';
         document.getElementById('modeTitle').innerText = 'SELEZIONA MODALITÀ';
@@ -1310,12 +1660,17 @@
         document.getElementById('masterCodesDisplay').style.display = 'none';
         document.getElementById('cpSetupOptions').style.display = 'none';
         document.getElementById('extractionSetupOptions').style.display = 'none';
+        document.getElementById('coordsSetupOptions').style.display = 'none';
+        document.getElementById('medevacSetupOptions').style.display = 'none';
         document.getElementById('wireSetupOptions').style.display = 'none';
+        
         document.getElementById('passwordDisplay').style.display = 'none';
         document.getElementById('passwordDisplay').style.fontSize = 'clamp(2.2rem, 6dvh, 3.2rem)';
         document.getElementById('timerDisplay').style.display = 'none';
         document.getElementById('timerDisplay').classList.remove('timer-expired', 'timer-paused');
         
+        document.getElementById('medevacBleedDisplayContainer').style.display = 'none';
+        document.getElementById('stopBleedBtn').style.display = 'none';
         document.getElementById('checkpointCodesDisplay').style.display = 'none';
         document.getElementById('progressContainer').style.display = 'none';
         document.getElementById('progressText').style.display = 'none';
@@ -1324,6 +1679,9 @@
         
         document.getElementById('classicControls').style.display = 'none';
         document.getElementById('unlockSection').style.display = 'none';
+        document.getElementById('medevacPlayerSection').style.display = 'none';
+        document.getElementById('coordsActionSection').style.display = 'none';
+        document.getElementById('coordsActionSection').innerHTML = '';
         document.getElementById('wireAccessSection').style.display = 'none';
         document.getElementById('dominationControls').style.display = 'none';
         document.getElementById('sndControls').style.display = 'none';
@@ -1334,6 +1692,21 @@
         document.getElementById('errorMessage').innerText = '';
         document.getElementById('wireAccessInput').value = '';
         document.getElementById('wireAccessPasswordInput').value = '';
+        
+        document.getElementById('medevacMasterNameInput').value = '';
+        document.getElementById('medevacMasterCoordInput').value = '';
+        document.getElementById('medevacPlayerNameInput').value = '';
+        document.getElementById('medevacPlayerCoordInput').value = '';
+        updateWoundUI('master');
+        updateWoundUI('player');
+
+        const stopBtn = document.getElementById('stopBleedBtn');
+        stopBtn.innerText = 'BLOCCA SANGUINAMENTO';
+        stopBtn.style.background = '#380d0d';
+        stopBtn.style.color = '#ff7777';
+        stopBtn.style.borderColor = '#8a2020';
+        stopBtn.disabled = false;
+
         clearKey();
     }
 
@@ -1345,6 +1718,8 @@
         document.getElementById('wireSetupOptions').style.display = 'none';
         document.getElementById('cpSetupOptions').style.display = 'none';
         document.getElementById('extractionSetupOptions').style.display = 'none';
+        document.getElementById('coordsSetupOptions').style.display = 'none';
+        document.getElementById('medevacSetupOptions').style.display = 'none';
         document.getElementById('masterCodesDisplay').style.display = 'none';
 
         if (mode === 'classic') {
@@ -1374,6 +1749,22 @@
             document.getElementById('instructionText').innerText = 'Annota o crea gli indizi per i codici qui sotto, imposta i timer e avvia il gioco.';
             document.getElementById('cpSetupOptions').style.display = 'contents';
             updateCpMasterCodes();
+        } else if (mode === 'coords') {
+            document.getElementById('modeTitle').innerText = 'MODALITÀ COORDINATE';
+            document.getElementById('instructionText').innerText = 'Inserisci manualmente le coordinate e configura il tipo di missione finale.';
+            document.getElementById('coordsSetupOptions').style.display = 'contents';
+            const typeVal = document.getElementById('coordsTypeSelect').value;
+            const targetGroup = document.getElementById('coordsTargetGroup');
+            if (targetGroup) {
+                targetGroup.style.display = (typeVal === 'strike') ? 'block' : 'none';
+            }
+            updateCoordsMasterCodes();
+        } else if (mode === 'medevac') {
+            document.getElementById('modeTitle').innerText = 'MODALITÀ MEDEVAC';
+            document.getElementById('instructionText').innerText = 'Configura i dati del ferito, il tempo di dissanguamento e le coordinate di esfiltrazione.';
+            document.getElementById('medevacSetupOptions').style.display = 'contents';
+            masterMedevacWounds = [];
+            updateWoundUI('master');
         }
     }
 
@@ -1456,6 +1847,7 @@
             currentPresidioSeconds = 0;
 
             document.getElementById('cpSetupOptions').style.display = 'none';
+            document.getElementById('checkpointCodesTitle').innerText = 'STATO CODICI PRESIDIO';
             
             const listContainer = document.getElementById('checkpointCodesList');
             listContainer.innerHTML = '';
@@ -1478,6 +1870,102 @@
             document.getElementById('timerDisplay').style.display = 'block';
             document.getElementById('instructionText').innerText = `Trova gli indizi sul campo, inserisci i ${numCodes} codici per sbloccare il presidio.`;
             startGenericTimer();
+        }
+        else if (currentMode === 'coords') {
+            const numCoordsSelect = parseInt(document.getElementById('coordsCountSelect').value, 10);
+            for (let i = 1; i <= numCoordsSelect; i++) {
+                const inp = document.getElementById(`coordInput_${i}`);
+                if (!inp || !inp.value.trim()) {
+                    document.getElementById('errorMessage').innerText = `Inserisci la Coordinata ${i}!`;
+                    document.getElementById('setupSection').style.display = 'block';
+                    return;
+                }
+            }
+            document.getElementById('errorMessage').innerText = '';
+
+            refreshCoordsMasterCodesList();
+            const numCoords = coordsTargetList.length;
+            coordsFoundList = new Array(numCoords).fill(false);
+            coordsMissionType = document.getElementById('coordsTypeSelect').value;
+            
+            if (coordsMissionType === 'strike') {
+                const targetVal = document.getElementById('coordsTargetSelect').value;
+                coordsCorrectTargetIndex = parseInt(targetVal, 10);
+            }
+
+            coordsFinalMinutes = parseInt(document.getElementById('coordsFinalTimerSelect').value, 10);
+            coordsPhase = 'search';
+
+            document.getElementById('coordsSetupOptions').style.display = 'none';
+            document.getElementById('checkpointCodesTitle').innerText = 'COORDINATE INDIVIDUATE';
+
+            renderCoordsListUI();
+
+            document.getElementById('checkpointCodesDisplay').style.display = 'block';
+            document.getElementById('unlockSection').style.display = 'block';
+            
+            clearKey();
+
+            totalSeconds = timerDurationMinutes * 60;
+            document.getElementById('timerDisplay').style.display = 'block';
+            document.getElementById('instructionText').innerText = `Trova e inserisci le ${numCoords} coordinate corrette sul campo.`;
+            startGenericTimer();
+        }
+        else if (currentMode === 'medevac') {
+            masterMedevacName = document.getElementById('medevacMasterNameInput').value.trim();
+            masterMedevacGender = document.getElementById('medevacMasterGenderSelect').value;
+            masterMedevacCoord = document.getElementById('medevacMasterCoordInput').value.trim();
+
+            if (!masterMedevacName || !masterMedevacCoord || masterMedevacWounds.length === 0) {
+                document.getElementById('errorMessage').innerText = "Inserisci nome, almeno un tipo di ferita e le coordinate!";
+                document.getElementById('setupSection').style.display = 'block';
+                return;
+            }
+            document.getElementById('errorMessage').innerText = '';
+
+            medevacBleedDurationMinutes = parseInt(document.getElementById('medevacBleedSelect').value, 10);
+            medevacBleedSeconds = medevacBleedDurationMinutes * 60;
+            isBleedingStopped = false;
+            playerMedevacWounds = [];
+            updateWoundUI('player');
+
+            document.getElementById('medevacSetupOptions').style.display = 'none';
+            document.getElementById('timerDisplay').style.display = 'block';
+            document.getElementById('medevacBleedDisplayContainer').style.display = 'block';
+            document.getElementById('stopBleedBtn').style.display = 'block';
+            document.getElementById('medevacPlayerSection').style.display = 'block';
+            document.getElementById('instructionText').innerText = 'MISSIONE MEDEVAC AVVIATA: Soccorri il ferito, blocca il sanguinamento e inserisci i dati per l\'Exfill.';
+
+            totalSeconds = timerDurationMinutes * 60;
+            startMedevacTimers();
+        }
+    }
+
+    function renderCoordsListUI() {
+        const listContainer = document.getElementById('checkpointCodesList');
+        listContainer.innerHTML = '';
+        for (let i = 0; i < coordsTargetList.length; i++) {
+            const boxElem = document.createElement('div');
+            boxElem.style.cssText = 'display: flex; flex-direction: column; align-items: center; background: rgba(0,0,0,0.4); padding: 3px 6px; border-radius: 4px; border: 1px solid var(--panel-border-bright); min-width: 60px;';
+            
+            const labelElem = document.createElement('div');
+            labelElem.style.cssText = 'font-size: 0.6rem; color: #888; text-transform: uppercase; font-weight: bold;';
+            labelElem.innerText = `COORD ${i + 1}`;
+
+            const valElem = document.createElement('div');
+            valElem.id = `coordVal${i + 1}`;
+            valElem.className = 'seven-segment';
+            valElem.style.cssText = 'font-size: clamp(1rem, 2.8dvh, 1.4rem); color: var(--amber-glow);';
+            valElem.innerText = coordsFoundList[i] ? coordsTargetList[i] : '----';
+
+            if (coordsFoundList[i]) {
+                valElem.style.color = 'var(--green-glow)';
+                boxElem.style.borderColor = 'var(--green-glow)';
+            }
+
+            boxElem.appendChild(labelElem);
+            boxElem.appendChild(valElem);
+            listContainer.appendChild(boxElem);
         }
     }
 
@@ -1643,6 +2131,88 @@
         }
     }
 
+    // GESTIONE TIMER MEDEVAC
+    function startMedevacTimers() {
+        if (timerInterval) clearInterval(timerInterval);
+        document.getElementById('timerDisplay').classList.remove('timer-paused');
+        
+        timerInterval = setInterval(() => {
+            totalSeconds--;
+            if (!isBleedingStopped) {
+                medevacBleedSeconds--;
+            }
+            
+            updateTimerUI(totalSeconds);
+            updateBleedingTimerUI(medevacBleedSeconds);
+
+            if (totalSeconds <= 0) {
+                clearInterval(timerInterval);
+                document.getElementById('timerDisplay').innerText = 'TEMPO SCADUTO!';
+                document.getElementById('timerDisplay').classList.add('timer-expired');
+                document.getElementById('instructionText').innerText = 'TEMPO SCADUTO: Missione fallita.';
+                document.getElementById('medevacPlayerSection').style.display = 'none';
+                document.getElementById('stopBleedBtn').style.display = 'none';
+                triggerTimeoutAlert("TEMPO SCADUTO");
+                return;
+            }
+
+            if (!isBleedingStopped && medevacBleedSeconds <= 0) {
+                clearInterval(timerInterval);
+                document.getElementById('timerDisplay').innerText = 'FERITO MORTO!';
+                document.getElementById('timerDisplay').classList.add('timer-expired');
+                document.getElementById('instructionText').innerText = 'DISSANGUAMENTO COMPLETATO! Il ferito è deceduto.';
+                document.getElementById('medevacPlayerSection').style.display = 'none';
+                document.getElementById('stopBleedBtn').style.display = 'none';
+                triggerTimeoutAlert("FERITO DECEDUTO - DISSANGUAMENTO!");
+            }
+        }, 1000);
+    }
+
+    function updateBleedingTimerUI(secs) {
+        if (secs < 0) secs = 0;
+        const mins = Math.floor(secs / 60);
+        const remSecs = secs % 60;
+        document.getElementById('bleedTimerDisplay').innerText = `${mins.toString().padStart(2, '0')}:${remSecs.toString().padStart(2, '0')}`;
+    }
+
+    function stopBleeding() {
+        isBleedingStopped = true;
+        const btn = document.getElementById('stopBleedBtn');
+        btn.innerText = 'SANGUINAMENTO ARRESTATO';
+        btn.style.background = '#122816';
+        btn.style.color = 'var(--green-glow)';
+        btn.style.borderColor = 'var(--green-dim)';
+        btn.disabled = true;
+        document.getElementById('instructionText').innerText = 'Sanguinamento bloccato! Inserisci i dati corretti del ferito e richiedi l\'Exfill.';
+    }
+
+    function requestMedevacExfill() {
+        const pName = document.getElementById('medevacPlayerNameInput').value.trim().toUpperCase();
+        const pGender = document.getElementById('medevacPlayerGenderSelect').value;
+        const pCoord = document.getElementById('medevacPlayerCoordInput').value.trim().toUpperCase();
+
+        const mName = masterMedevacName.trim().toUpperCase();
+        const mGender = masterMedevacGender;
+        const mCoord = masterMedevacCoord.trim().toUpperCase();
+
+        const woundsMatch = playerMedevacWounds.length === masterMedevacWounds.length &&
+            playerMedevacWounds.every(w => masterMedevacWounds.includes(w));
+
+        if (pName === mName && pGender === mGender && pCoord === mCoord && woundsMatch) {
+            clearInterval(timerInterval);
+            document.getElementById('medevacPlayerSection').style.display = 'none';
+            document.getElementById('stopBleedBtn').style.display = 'none';
+            document.getElementById('passwordDisplay').innerText = 'MEDEVAC RIUSCITO';
+            document.getElementById('passwordDisplay').style.fontSize = 'clamp(1.4rem, 4dvh, 2rem)';
+            document.getElementById('passwordDisplay').style.display = 'flex';
+            document.getElementById('instructionText').innerText = 'ESTRAZIONE FERITO COMPLETATA CON SUCCESSO! VITTORIA!';
+            triggerTimeoutAlert("MEDEVAC COMPLETATO - VITTORIA!");
+        } else {
+            document.getElementById('errorMessage').innerText = 'DATI ERRATI O INCOMPLETI! Verifica nome, genere, ferite o coordinate.';
+            setTimeout(() => { document.getElementById('errorMessage').innerText = ''; }, 3500);
+        }
+    }
+
     function startGenericTimer() {
         if (timerInterval) clearInterval(timerInterval);
         document.getElementById('timerDisplay').classList.remove('timer-paused');
@@ -1658,6 +2228,7 @@
                 document.getElementById('timerDisplay').classList.add('timer-expired');
                 document.getElementById('instructionText').innerText = 'TEMPO SCADUTO: Obiettivo fallito.';
                 document.getElementById('unlockSection').style.display = 'none';
+                document.getElementById('coordsActionSection').style.display = 'none';
                 document.getElementById('wireAccessSection').style.display = 'none';
                 document.getElementById('wireControls').style.display = 'none';
                 document.getElementById('cpHoldSection').style.display = 'none';
@@ -1665,14 +2236,6 @@
                 triggerTimeoutAlert("TEMPO SCADUTO");
             }
         }, 1000);
-    }
-
-    function pauseGenericTimer() {
-        if (timerInterval) {
-            clearInterval(timerInterval);
-            timerInterval = null;
-        }
-        document.getElementById('timerDisplay').classList.add('timer-paused');
     }
 
     function updateTimerUI(secs) {
@@ -1690,6 +2253,33 @@
     function handleCodeSubmit() {
         if (isDisplayingError) return;
         const userInput = currentInputCode.trim().toUpperCase();
+
+        if (currentMode === 'coords') {
+            let matchedIndex = -1;
+            for (let i = 0; i < coordsTargetList.length; i++) {
+                if (coordsTargetList[i] === userInput && !coordsFoundList[i]) {
+                    matchedIndex = i;
+                    break;
+                }
+            }
+
+            if (matchedIndex !== -1) {
+                coordsFoundList[matchedIndex] = true;
+                renderCoordsListUI();
+                clearKey();
+                closeKeyboardModal();
+
+                if (coordsFoundList.every(val => val === true)) {
+                    document.getElementById('unlockSection').style.display = 'none';
+                    setupCoordsActionUI();
+                } else {
+                    document.getElementById('instructionText').innerText = `COORDINATA ${matchedIndex + 1} CONFERMATA! Trova le rimanenti.`;
+                }
+            } else {
+                showKeyboardError('COORDINATA ERRATA');
+            }
+            return;
+        }
 
         if (currentMode === 'checkpoint') {
             let matchedIndex = -1;
@@ -1786,6 +2376,98 @@
         }
     }
 
+    function setupCoordsActionUI() {
+        const container = document.getElementById('coordsActionSection');
+        container.innerHTML = '';
+        container.style.display = 'block';
+
+        if (coordsMissionType === 'exfil') {
+            document.getElementById('instructionText').innerText = 'TUTTE LE COORDINATE VERIFICATE! Premi per richiedere l\'Exfil e avviare l\'attesa.';
+            const btn = document.createElement('button');
+            btn.className = 'btn-blue';
+            btn.style.cssText = 'font-size: clamp(0.85rem, 1.8dvh, 1.1rem); padding: clamp(10px, 1.8dvh, 14px);';
+            btn.innerText = 'RICHIEDI EXFIL';
+            btn.onclick = triggerCoordsExfil;
+            container.appendChild(btn);
+        } else if (coordsMissionType === 'strike') {
+            document.getElementById('instructionText').innerText = 'TUTTE LE COORDINATE VERIFICATE! Seleziona quale coordinata bombardare:';
+            const grid = document.createElement('div');
+            grid.style.cssText = 'display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 6px; margin-top: 4px;';
+            
+            coordsTargetList.forEach((code, idx) => {
+                const btn = document.createElement('button');
+                btn.className = 'btn-red';
+                btn.style.cssText = 'font-size: clamp(0.75rem, 1.5dvh, 0.95rem); padding: clamp(8px, 1.4dvh, 10px); margin: 0;';
+                btn.innerText = `BOMBARDA COORD. #${idx + 1} (${code})`;
+                btn.onclick = () => triggerCoordsStrike(idx + 1, code);
+                grid.appendChild(btn);
+            });
+            container.appendChild(grid);
+        }
+    }
+
+    function triggerCoordsExfil() {
+        document.getElementById('coordsActionSection').style.display = 'none';
+        coordsPhase = 'countdown';
+        totalSeconds = coordsFinalMinutes * 60;
+        
+        document.getElementById('instructionText').innerText = 'EXFIL RICHIESTO! Raggiungere la zona di estrazione prima dello scadere del tempo.';
+        playPresidioStartSound();
+
+        if (timerInterval) clearInterval(timerInterval);
+        
+        timerInterval = setInterval(() => {
+            totalSeconds--;
+            updateTimerUI(totalSeconds);
+
+            if (totalSeconds <= 0) {
+                clearInterval(timerInterval);
+                document.getElementById('passwordDisplay').innerText = 'EXFIL RIUSCITO';
+                document.getElementById('passwordDisplay').style.fontSize = 'clamp(1.4rem, 4dvh, 2rem)';
+                document.getElementById('passwordDisplay').style.display = 'flex';
+                document.getElementById('instructionText').innerText = 'EVACUAZIONE COMPLETATA! SQUADRA ESTRATTA CON SUCCESSO.';
+                triggerTimeoutAlert("EXFIL COMPLETATO - VITTORIA!");
+            }
+        }, 1000);
+    }
+
+    function triggerCoordsStrike(targetIndex, targetCode) {
+        document.getElementById('coordsActionSection').style.display = 'none';
+        coordsPhase = 'countdown';
+        totalSeconds = coordsFinalMinutes * 60;
+
+        document.getElementById('instructionText').innerText = `ATTACCO ARTIGLIERIA CONFERMATO SU COORD #${targetIndex} (${targetCode})! COLPI IN ARRIVO...`;
+        playPresidioStartSound();
+
+        if (timerInterval) clearInterval(timerInterval);
+
+        timerInterval = setInterval(() => {
+            totalSeconds--;
+            updateTimerUI(totalSeconds);
+
+            if (totalSeconds <= 0) {
+                clearInterval(timerInterval);
+                if (targetIndex === coordsCorrectTargetIndex) {
+                    document.getElementById('timerDisplay').innerText = 'BOOM!';
+                    document.getElementById('timerDisplay').classList.add('timer-expired');
+                    document.getElementById('passwordDisplay').innerText = `IMPATTO COORD #${targetIndex}`;
+                    document.getElementById('passwordDisplay').style.fontSize = 'clamp(1.2rem, 3.2dvh, 1.6rem)';
+                    document.getElementById('passwordDisplay').style.display = 'flex';
+                    document.getElementById('instructionText').innerText = `IMPATTO CONFERMATO! L'obiettivo alla coordinata #${targetIndex} (${targetCode}) è stato distrutto!`;
+                    triggerTimeoutAlert(`BOMBARDAMENTO COMPLETATO SU OBIETTIVO #${targetIndex}!`);
+                } else {
+                    document.getElementById('timerDisplay').innerText = 'FALLITO!';
+                    document.getElementById('timerDisplay').classList.add('timer-expired');
+                    document.getElementById('passwordDisplay').innerText = `BERSAGLIO ERRATO`;
+                    document.getElementById('passwordDisplay').style.fontSize = 'clamp(1.2rem, 3.2dvh, 1.6rem)';
+                    document.getElementById('passwordDisplay').style.display = 'flex';
+                    document.getElementById('instructionText').innerText = `BOMBARDAMENTO FALLITO! La coordinata #${targetIndex} (${targetCode}) non era il bersaglio corretto.`;
+                    triggerTimeoutAlert(`BOMBARDAMENTO ERRORE - BERSAGLIO ERRATO!`);
+                }
+            }
+        }, 1000);
+    }
+
     function setupCpToggleButtonUI() {
         const progressCont = document.getElementById('progressContainer');
         const progressBar = document.getElementById('progressBar');
@@ -1808,7 +2490,11 @@
 
     function startPresidio() {
         isPresidiando = true;
-        pauseGenericTimer();
+        if (timerInterval) {
+            clearInterval(timerInterval);
+            timerInterval = null;
+        }
+        document.getElementById('timerDisplay').classList.add('timer-paused');
 
         playPresidioStartSound();
 
