@@ -1131,6 +1131,7 @@
     let coordsCorrectTargetIndex = 1;
     let coordsFinalMinutes = 3;
     let coordsPhase = 'search'; 
+    let coordsFinalSeconds = 0;
 
     // VARIABILI MODALITÀ MEDEVAC
     let medevacBleedDurationMinutes = 3;
@@ -1377,7 +1378,7 @@
         }
     }
 
-    function playPresidioStartSound() {
+ function playPresidioStartSound() {
         try {
             const AudioContext = window.AudioContext || window.webkitAudioContext;
             if (!AudioContext) return;
@@ -1978,6 +1979,166 @@
         }
     }
 
+    function renderCoordsActionUI() {
+        const actionSection = document.getElementById('coordsActionSection');
+        actionSection.style.display = 'block';
+        actionSection.innerHTML = '';
+
+        if (coordsMissionType === 'exfil') {
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.className = 'btn-green';
+            btn.style.cssText = 'font-size: clamp(0.85rem, 1.8dvh, 1.1rem); padding: clamp(10px, 1.8dvh, 14px); width: 100%;';
+            btn.innerText = 'AVVIA EXFIL FINALE';
+            btn.onclick = function() {
+                startCoordsFinalCountdown();
+            };
+            actionSection.appendChild(btn);
+        } else if (coordsMissionType === 'strike') {
+            const wrapper = document.createElement('div');
+            wrapper.style.cssText = 'display: flex; flex-direction: column; gap: 8px; width: 100%;';
+
+            const group = document.createElement('div');
+            group.className = 'setup-group';
+            group.innerHTML = `
+                <label>SELEZIONA BERSAGLIO ARTIGLIERIA:</label>
+                <div class="custom-select-wrapper" id="coordsStrikeTargetWrapper">
+                    <div class="custom-select-trigger" onclick="toggleCustomSelect('coordsStrikeTargetWrapper', event)">
+                        <span>Coord. 1</span>
+                        <span class="arrow">▼</span>
+                    </div>
+                    <div class="custom-select-options" id="coordsStrikeTargetOptions"></div>
+                    <input type="hidden" id="coordsStrikeTargetSelect" value="1">
+                </div>
+            `;
+            wrapper.appendChild(group);
+
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.className = 'btn-red';
+            btn.style.cssText = 'font-size: clamp(0.85rem, 1.8dvh, 1.1rem); padding: clamp(10px, 1.8dvh, 14px); width: 100%;';
+            btn.innerText = 'AVVIA BOMBARDAMENTO';
+            btn.onclick = function() {
+                const selectedTarget = parseInt(document.getElementById('coordsStrikeTargetSelect').value, 10);
+                if (selectedTarget === coordsCorrectTargetIndex) {
+                    document.getElementById('errorMessage').innerText = '';
+                    startCoordsFinalCountdown();
+                } else {
+                    document.getElementById('errorMessage').innerText = 'BERSAGLIO ERRATO! Colpo fuori bersaglio!';
+                    startLoopingAlarm();
+                    setTimeout(() => {
+                        stopLoopingAlarm();
+                        document.getElementById('errorMessage').innerText = '';
+                    }, 3000);
+                }
+            };
+            wrapper.appendChild(btn);
+            actionSection.appendChild(wrapper);
+
+            setTimeout(() => {
+                const strikeOpts = document.getElementById('coordsStrikeTargetOptions');
+                if (strikeOpts) {
+                    strikeOpts.innerHTML = '';
+                    for (let i = 1; i <= coordsTargetList.length; i++) {
+                        const opt = document.createElement('div');
+                        opt.className = `custom-option${i === 1 ? ' selected' : ''}`;
+                        opt.setAttribute('data-value', String(i));
+                        opt.innerText = `Coord. ${i} (${coordsTargetList[i-1]})`;
+                        opt.onclick = function() {
+                            selectCustomOption('coordsStrikeTargetWrapper', String(i), `Coord. ${i}`);
+                        };
+                        strikeOpts.appendChild(opt);
+                    }
+                    selectCustomOption('coordsStrikeTargetWrapper', '1', `Coord. 1 (${coordsTargetList[0]})`);
+                }
+            }, 50);
+        }
+    }
+
+    function startCoordsFinalCountdown() {
+        coordsPhase = 'running';
+        document.getElementById('coordsActionSection').style.display = 'none';
+        coordsFinalSeconds = coordsFinalMinutes * 60;
+
+        document.getElementById('instructionText').innerText = coordsMissionType === 'exfil' 
+            ? 'ESFILTRAZIONE IN CORSO: Difendi la posizione!' 
+            : 'BOMBARDAMENTO IN CORSO: Artiglieria attiva!';
+
+        if (timerInterval) clearInterval(timerInterval);
+
+        timerInterval = setInterval(() => {
+            totalSeconds--;
+            coordsFinalSeconds--;
+            updateTimerUI(coordsFinalSeconds);
+
+            if (coordsFinalSeconds <= 0) {
+                clearInterval(timerInterval);
+                document.getElementById('timerDisplay').innerText = 'COMPLETO!';
+                document.getElementById('timerDisplay').classList.add('timer-paused');
+                document.getElementById('instructionText').innerText = coordsMissionType === 'exfil'
+                    ? 'ESFILTRAZIONE COMPLETATA CON SUCCESSO!'
+                    : 'BOMBARDAMENTO COMPLETATO CON SUCCESSO!';
+                releaseWakeLock();
+                return;
+            }
+
+            if (totalSeconds <= 0) {
+                clearInterval(timerInterval);
+                document.getElementById('timerDisplay').innerText = 'TEMPO SCADUTO!';
+                document.getElementById('timerDisplay').classList.add('timer-expired');
+                document.getElementById('instructionText').innerText = 'MISSIONE FALLITA: Tempo scaduto.';
+                closeKeyboardModal();
+                triggerTimeoutAlert("TEMPO SCADUTO");
+            }
+        }, 1000);
+        updateTimerUI(coordsFinalSeconds);
+    }
+
+function toggleBombardamento() {
+        const btn = document.getElementById('cpToggleBtn');
+        if (!isPresidiando) {
+            isPresidiando = true;
+            btn.innerText = 'INTERROMPI BOMBARDAMENTO';
+            btn.style.background = '#380d0d';
+            btn.style.color = '#ff7777';
+            btn.style.borderColor = '#8a2020';
+            document.getElementById('instructionText').innerText = 'BOMBARDAMENTO IN CORSO';
+            playPresidioStartSound();
+
+            const targetPresidioSecs = secretPresidioDurationMinutes * 60;
+            currentPresidioSeconds = 0;
+
+            if (cpPresidioInterval) clearInterval(cpPresidioInterval);
+            cpPresidioInterval = setInterval(() => {
+                currentPresidioSeconds++;
+                let pct = Math.floor((currentPresidioSeconds / targetPresidioSecs) * 100);
+                if (pct > 100) pct = 100;
+
+                document.getElementById('progressContainer').style.display = 'block';
+                document.getElementById('progressText').style.display = 'block';
+                document.getElementById('progressBar').style.width = pct + '%';
+                document.getElementById('progressBar').classList.add('progress-bar-amber');
+                document.getElementById('progressText').innerText = `PRESIDIO: ${pct}%`;
+
+                if (currentPresidioSeconds >= targetPresidioSecs) {
+                    clearInterval(cpPresidioInterval);
+                    if (timerInterval) clearInterval(timerInterval);
+                    document.getElementById('timerDisplay').innerText = 'COMPLETATO!';
+                    document.getElementById('instructionText').innerText = 'PRESIDIO COMPLETATO CON SUCCESSO!';
+                    document.getElementById('cpHoldSection').style.display = 'none';
+                }
+            }, 1000);
+        } else {
+            isPresidiando = false;
+            btn.innerText = 'RIPRENDI PRESIDIO';
+            btn.style.background = '#33240d';
+            btn.style.color = 'var(--amber-glow)';
+            btn.style.borderColor = 'var(--amber-glow)';
+            document.getElementById('instructionText').innerText = 'BOMBARDAMENTO INTERROTTO!';
+            if (cpPresidioInterval) clearInterval(cpPresidioInterval);
+        }
+    }
+
     function verifyWireAccess() {
         const inputPass = document.getElementById('wireAccessInput').value.trim();
         const errorDiv = document.getElementById('errorMessage');
@@ -2003,7 +2164,7 @@
 
         document.getElementById('instructionText').innerText = 'Inserisci il codice per rivelare la password.';
         totalSeconds = timerDurationMinutes * 60;
-        document.getElementById('timerDisplay').style.display = 'block';
+        document.getElementById('timerDisplay').style.display = 'flex';
         startGenericTimer();
     }
 
@@ -2166,6 +2327,51 @@
         return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
     }
 
+    function togglePresidio() {
+        const btn = document.getElementById('cpToggleBtn');
+        if (!isPresidiando) {
+            isPresidiando = true;
+            btn.innerText = 'INTERROMPI PRESIDIO';
+            btn.style.background = '#380d0d';
+            btn.style.color = '#ff7777';
+            btn.style.borderColor = '#8a2020';
+            document.getElementById('instructionText').innerText = 'PRESIDIO IN CORSO: Difendi la posizione!';
+            playPresidioStartSound();
+
+            const targetPresidioSecs = secretPresidioDurationMinutes * 60;
+            currentPresidioSeconds = 0;
+
+            if (cpPresidioInterval) clearInterval(cpPresidioInterval);
+            cpPresidioInterval = setInterval(() => {
+                currentPresidioSeconds++;
+                let pct = Math.floor((currentPresidioSeconds / targetPresidioSecs) * 100);
+                if (pct > 100) pct = 100;
+
+                document.getElementById('progressContainer').style.display = 'block';
+                document.getElementById('progressText').style.display = 'block';
+                document.getElementById('progressBar').style.width = pct + '%';
+                document.getElementById('progressBar').classList.add('progress-bar-amber');
+                document.getElementById('progressText').innerText = `PRESIDIO: ${pct}%`;
+
+                if (currentPresidioSeconds >= targetPresidioSecs) {
+                    clearInterval(cpPresidioInterval);
+                    if (timerInterval) clearInterval(timerInterval);
+                    document.getElementById('timerDisplay').innerText = 'COMPLETATO!';
+                    document.getElementById('instructionText').innerText = 'PRESIDIO COMPLETATO CON SUCCESSO!';
+                    document.getElementById('cpHoldSection').style.display = 'none';
+                }
+            }, 1000);
+        } else {
+            isPresidiando = false;
+            btn.innerText = 'RIPRENDI PRESIDIO';
+            btn.style.background = '#33240d';
+            btn.style.color = 'var(--amber-glow)';
+            btn.style.borderColor = 'var(--amber-glow)';
+            document.getElementById('instructionText').innerText = 'PRESIDIO INTERROTTO!';
+            if (cpPresidioInterval) clearInterval(cpPresidioInterval);
+        }
+    }
+
     function handleCodeSubmit() {
         const code = currentInputCode.trim().toUpperCase();
         const errDiv = document.getElementById('errorMessage');
@@ -2245,167 +2451,16 @@
                 closeKeyboardModal();
 
                 if (coordsFoundList.every(val => val === true)) {
+                    coordsPhase = 'final';
                     document.getElementById('unlockSection').style.display = 'none';
-                    startCoordsFinalPhase();
+                    document.getElementById('instructionText').innerText = 'TUTTE LE COORDINATE TROVATE: Conferma l\'azione finale.';
+                    renderCoordsActionUI();
                 } else {
-                    document.getElementById('instructionText').innerText = 'COORDINATA CORRETTA! Continua la ricerca.';
+                    document.getElementById('instructionText').innerText = 'COORDINATA CORRETTA! Trova le rimanenti.';
                 }
             } else {
                 showKeyboardError('ERRATO');
             }
-        }
-    }
-
-    function startCoordsFinalPhase() {
-        coordsPhase = 'final';
-        const finalSecs = coordsFinalMinutes * 60;
-        totalSeconds = finalSecs;
-
-        const actionSec = document.getElementById('coordsActionSection');
-        actionSec.style.display = 'block';
-
-        if (coordsMissionType === 'exfil') {
-            document.getElementById('instructionText').innerText = `TUTTE LE COORDINATE TROVATE: Presidia l'area di esfiltrazione per ${coordsFinalMinutes} minuti!`;
-            actionSec.innerHTML = `<button type="button" class="btn-green" onclick="completeCoordsMission()" style="padding: 12px;">CONFERMA ESFILTRAZIONE</button>`;
-        } else {
-            document.getElementById('instructionText').innerText = `BOMBARDAMENTO ARTIGLIERIA: Inserisci il bersaglio finale corretto.`;
-            let htmlOptions = '';
-            for (let i = 1; i <= coordsTargetList.length; i++) {
-                htmlOptions += `<button type="button" class="btn-red" onclick="verifyCoordsStrikeTarget(${i})" style="margin: 3px 0;">ATTACCA COORD ${i} (${coordsTargetList[i-1]})</button>`;
-            }
-            actionSec.innerHTML = htmlOptions;
-        }
-    }
-
-    function verifyCoordsStrikeTarget(selectedIdx) {
-        if (selectedIdx === coordsCorrectTargetIndex) {
-            document.getElementById('instructionText').innerText = `BERSAGLIO COLPITO CON SUCCESSO! Missione completata.`;
-            document.getElementById('coordsActionSection').style.display = 'none';
-            if (timerInterval) clearInterval(timerInterval);
-            document.getElementById('timerDisplay').innerText = 'COMPLETATO';
-        } else {
-            document.getElementById('instructionText').innerText = `ERRORE: Bersaglio errato! Fuoco amico o colpo a vuoto!`;
-            document.getElementById('coordsActionSection').style.display = 'none';
-            if (timerInterval) clearInterval(timerInterval);
-            document.getElementById('timerDisplay').innerText = 'FALLITO';
-            document.getElementById('timerDisplay').classList.add('timer-expired');
-            triggerTimeoutAlert("BERSAGLIO ERRATO");
-        }
-    }
-
-    function completeCoordsMission() {
-        document.getElementById('instructionText').innerText = `ESFILTRAZIONE COMPLETATA CON SUCCESSO!`;
-        document.getElementById('coordsActionSection').style.display = 'none';
-        if (timerInterval) clearInterval(timerInterval);
-        document.getElementById('timerDisplay').innerText = 'COMPLETATO';
-    }
-
-    function togglePresidio() {
-        const btn = document.getElementById('cpToggleBtn');
-        if (!isPresidiando) {
-            isPresidiando = true;
-            btn.innerText = 'INTERROMPI PRESIDIO';
-            btn.style.background = '#380d0d';
-            btn.style.color = '#ff7777';
-            btn.style.borderColor = '#8a2020';
-            document.getElementById('instructionText').innerText = 'PRESIDIO IN CORSO: Difendi la posizione!';
-            playPresidioStartSound();
-
-            const targetPresidioSecs = secretPresidioDurationMinutes * 60;
-            currentPresidioSeconds = 0;
-
-            if (cpPresidioInterval) clearInterval(cpPresidioInterval);
-            cpPresidioInterval = setInterval(() => {
-                currentPresidioSeconds++;
-                let pct = Math.floor((currentPresidioSeconds / targetPresidioSecs) * 100);
-                if (pct > 100) pct = 100;
-
-                document.getElementById('progressContainer').style.display = 'block';
-                document.getElementById('progressText').style.display = 'block';
-                document.getElementById('progressBar').style.width = pct + '%';
-                document.getElementById('progressBar').classList.add('progress-bar-amber');
-                document.getElementById('progressText').innerText = `PRESIDIO: ${pct}%`;
-
-                if (currentPresidioSeconds >= targetPresidioSecs) {
-                    clearInterval(cpPresidioInterval);
-                    if (timerInterval) clearInterval(timerInterval);
-                    document.getElementById('timerDisplay').innerText = 'COMPLETATO!';
-                    document.getElementById('instructionText').innerText = 'PRESIDIO COMPLETATO CON SUCCESSO!';
-                    document.getElementById('cpHoldSection').style.display = 'none';
-                }
-            }, 1000);
-        } else {
-            isPresidiando = false;
-            btn.innerText = 'RIPRENDI PRESIDIO';
-            btn.style.background = '#33240d';
-            btn.style.color = 'var(--amber-glow)';
-            btn.style.borderColor = 'var(--amber-glow)';
-            document.getElementById('instructionText').innerText = 'PRESIDIO INTERROTTO!';
-            if (cpPresidioInterval) clearInterval(cpPresidioInterval);
-        }
-    }
-
-    function armSND() {
-        document.getElementById('sndControls').style.display = 'none';
-        document.getElementById('unlockSection').style.display = 'block';
-        document.getElementById('timerDisplay').style.display = 'block';
-        
-        maxInputLength = 4;
-        clearKey();
-
-        document.getElementById('instructionText').innerText = 'ORDIGNO INNESCATO: Inserisci il codice di disinnesco per fermare il conto alla rovescia.';
-        totalSeconds = timerDurationMinutes * 60;
-        startGenericTimer();
-    }
-
-    function cutWire(wireColor) {
-        document.getElementById('wireControls').style.display = 'none';
-        if (timerInterval) clearInterval(timerInterval);
-
-        if (wireColor === correctWire) {
-            document.getElementById('timerDisplay').innerText = 'DISINNESCATO';
-            document.getElementById('instructionText').innerText = 'ORDIGNO DISINNESCATO CON SUCCESSO!';
-            releaseWakeLock();
-        } else if (wireColor === boomWire) {
-            document.getElementById('timerDisplay').innerText = 'BOOM!';
-            document.getElementById('timerDisplay').classList.add('timer-expired');
-            document.getElementById('instructionText').innerText = 'ESPLOSIONE: Hai tagliato il cavo esplosivo!';
-            triggerTimeoutAlert("BOOM - ESPLOSIONE");
-        } else {
-            document.getElementById('timerDisplay').innerText = 'ERRORE!';
-            document.getElementById('instructionText').innerText = 'TAGLIO ERRATO: Nessun effetto sul timer.';
-            document.getElementById('wireControls').style.display = 'block';
-            startGenericTimer();
-        }
-    }
-
-    function requestMedevacExfill() {
-        const playerName = document.getElementById('medevacPlayerNameInput').value.trim();
-        const playerCoord = document.getElementById('medevacPlayerCoordInput').value.trim();
-        const errDiv = document.getElementById('errorMessage');
-
-        if (!playerName || !playerCoord || playerMedevacWounds.length === 0) {
-            errDiv.innerText = "Inserisci nome, seleziona almeno un tipo di ferita e le coordinate!";
-            return;
-        }
-        errDiv.innerText = '';
-
-        const nameMatch = (playerName.toUpperCase() === masterMedevacName.toUpperCase());
-        const coordMatch = (playerCoord.toUpperCase() === masterMedevacCoord.toUpperCase());
-        
-        let woundsMatch = (playerMedevacWounds.length === masterMedevacWounds.length && playerMedevacWounds.every(w => masterMedevacWounds.includes(w)));
-
-        if (nameMatch && coordMatch && woundsMatch) {
-            if (timerInterval) clearInterval(timerInterval);
-            document.getElementById('medevacPlayerSection').style.display = 'none';
-            document.getElementById('medevacBleedDisplayContainer').style.display = 'none';
-            document.getElementById('stopBleedBtn').style.display = 'none';
-            document.getElementById('timerDisplay').innerText = 'ESFILTRATO';
-            document.getElementById('instructionText').innerText = 'ESFILTRAZIONE MEDEVAC COMPLETATA CON SUCCESSO!';
-            releaseWakeLock();
-        } else {
-            errDiv.innerText = 'DATI ERRATI: Verifica nome, ferite o coordinate con il ferito!';
-            setTimeout(() => { errDiv.innerText = ''; }, 4000);
         }
     }
 </script>
