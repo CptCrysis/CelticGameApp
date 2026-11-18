@@ -1331,6 +1331,27 @@
         }, 2000);
     }
 
+    function cutWire(wireColor) {
+        document.getElementById('wireControls').style.display = 'none';
+        if (timerInterval) clearInterval(timerInterval);
+
+        if (wireColor === correctWire) {
+            document.getElementById('timerDisplay').innerText = 'DISINNESCATO';
+            document.getElementById('instructionText').innerText = 'ORDIGNO DISINNESCATO CON SUCCESSO!';
+            releaseWakeLock();
+        } else if (wireColor === boomWire) {
+            document.getElementById('timerDisplay').innerText = 'BOOM!';
+            document.getElementById('timerDisplay').classList.add('timer-expired');
+            document.getElementById('instructionText').innerText = 'ESPLOSIONE: Hai tagliato il cavo esplosivo!';
+            triggerTimeoutAlert("BOOM - ESPLOSIONE");
+        } else {
+            document.getElementById('timerDisplay').innerText = 'ERRORE!';
+            document.getElementById('instructionText').innerText = 'TAGLIO ERRATO: Nessun effetto sul timer.';
+            document.getElementById('wireControls').style.display = 'block';
+            startGenericTimer();
+        }
+    }
+
     function appendKey(char) {
         if (isDisplayingError) return;
         if (currentInputCode.length < maxInputLength) {
