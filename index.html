@@ -1170,6 +1170,65 @@
         }
     }
 
+    function armSND() {
+        document.getElementById('sndControls').style.display = 'none';
+        document.getElementById('unlockSection').style.display = 'block';
+        
+        maxInputLength = 4;
+        clearKey();
+
+        document.getElementById('instructionText').innerText = 'ORDIGNO INNESCATO! I difensori devono inserire il codice di disinnesco.';
+        totalSeconds = timerDurationMinutes * 60;
+        document.getElementById('timerDisplay').style.display = 'block';
+        
+        timerInterval = setInterval(() => {
+            totalSeconds--;
+            updateTimerUI(totalSeconds);
+
+            if (totalSeconds <= 0) {
+                clearInterval(timerInterval);
+                document.getElementById('timerDisplay').innerText = 'BOOM!';
+                document.getElementById('timerDisplay').classList.add('timer-expired');
+                document.getElementById('instructionText').innerText = 'DETONAZIONE! L\'obiettivo è stato distrutto.';
+                document.getElementById('unlockSection').style.display = 'none';
+                closeKeyboardModal();
+                triggerTimeoutAlert("TEMPO SCADUTO");
+            }
+        }, 1000);
+    }
+ 
+
+
+    function requestMedevacExfill() {
+        const playerName = document.getElementById('medevacPlayerNameInput').value.trim();
+        const playerCoord = document.getElementById('medevacPlayerCoordInput').value.trim();
+        const errDiv = document.getElementById('errorMessage');
+
+        if (!playerName || !playerCoord || playerMedevacWounds.length === 0) {
+            errDiv.innerText = "Inserisci nome, seleziona almeno un tipo di ferita e le coordinate!";
+            return;
+        }
+        errDiv.innerText = '';
+
+        const nameMatch = (playerName.toUpperCase() === masterMedevacName.toUpperCase());
+        const coordMatch = (playerCoord.toUpperCase() === masterMedevacCoord.toUpperCase());
+        
+        let woundsMatch = (playerMedevacWounds.length === masterMedevacWounds.length && playerMedevacWounds.every(w => masterMedevacWounds.includes(w)));
+
+        if (nameMatch && coordMatch && woundsMatch) {
+            if (timerInterval) clearInterval(timerInterval);
+            document.getElementById('medevacPlayerSection').style.display = 'none';
+            document.getElementById('medevacBleedDisplayContainer').style.display = 'none';
+            document.getElementById('stopBleedBtn').style.display = 'none';
+            document.getElementById('timerDisplay').innerText = 'ESFILTRATO';
+            document.getElementById('instructionText').innerText = 'ESFILTRAZIONE MEDEVAC COMPLETATA CON SUCCESSO!';
+            releaseWakeLock();
+        } else {
+            errDiv.innerText = 'DATI ERRATI: Verifica nome, ferite o coordinate con il ferito!';
+            setTimeout(() => { errDiv.innerText = ''; }, 4000);
+        }
+    }
+
     function selectCustomOption(wrapperId, val, text) {
         const wrapper = document.getElementById(wrapperId);
         if (!wrapper) return;
@@ -2185,7 +2244,7 @@ function toggleBombardamento() {
 
         document.getElementById('instructionText').innerText = 'Inserisci il codice per rivelare la password.';
         totalSeconds = timerDurationMinutes * 60;
-        document.getElementById('timerDisplay').style.display = 'flex';
+        document.getElementById('timerDisplay').style.display = 'block';
         startGenericTimer();
     }
 
@@ -2394,22 +2453,28 @@ function toggleBombardamento() {
     }
 
     function handleCodeSubmit() {
-        const code = currentInputCode.trim().toUpperCase();
+        const userInput = currentInputCode.trim().toUpperCase();
         const errDiv = document.getElementById('errorMessage');
         errDiv.innerText = '';
 
         if (currentMode === 'classic') {
-            if (code === classicCode || code === targetPassword) {
-                document.getElementById('passwordDisplay').innerText = targetPassword;
-                document.getElementById('instructionText').innerText = 'CODICE CORRETTO: Password sbloccata!';
+            if (userInput === classicCode) {
+                clearInterval(timerInterval);
+                clearKey();
                 closeKeyboardModal();
+                document.getElementById('passwordDisplay').innerText = targetPassword;
+                document.getElementById('passwordDisplay').style.display = 'flex';
+                document.getElementById('instructionText').innerText = 'OBIETTIVO SBLOCCATO! Utilizza questa combinazione.';
+                document.getElementById('unlockSection').style.display = 'none';
             } else {
-                showKeyboardError('ERRATO');
+                showKeyboardError('CODICE ERRATO');
             }
-        } 
+            return;
+        }
+		
         else if (currentMode === 'extraction') {
             if (!extractionStarted) {
-                if (code === extractionStartCode) {
+                if (userInput === extractionStartCode) {
                     extractionStarted = true;
                     extractionPaused = false;
                     document.getElementById('instructionText').innerText = 'DOWNLOAD AVVIATO: Trasferimento dati in corso...';
@@ -2418,7 +2483,7 @@ function toggleBombardamento() {
                     showKeyboardError('ERRATO');
                 }
             } else if (extractionPaused) {
-                if (extractionIntermediateCodes.length > 0 && code === extractionIntermediateCodes[extractionNextCodeIndex]) {
+                if (extractionIntermediateCodes.length > 0 && userInput === extractionIntermediateCodes[extractionNextCodeIndex]) {
                     extractionNextCodeIndex++;
                     extractionPaused = false;
                     document.getElementById('instructionText').innerText = 'CODICE INTERMEDIO VALIDO: Ripresa download...';
@@ -2431,7 +2496,7 @@ function toggleBombardamento() {
         else if (currentMode === 'checkpoint') {
             let foundIndex = -1;
             for (let i = 0; i < cpTargetCodes.length; i++) {
-                if (!cpFoundCodes[i] && code === cpTargetCodes[i]) {
+                if (!cpFoundCodes[i] && userInput === cpTargetCodes[i]) {
                     foundIndex = i;
                     break;
                 }
@@ -2460,7 +2525,7 @@ function toggleBombardamento() {
         else if (currentMode === 'coords') {
             let foundIndex = -1;
             for (let i = 0; i < coordsTargetList.length; i++) {
-                if (!coordsFoundList[i] && code === coordsTargetList[i]) {
+                if (!coordsFoundList[i] && userInput === coordsTargetList[i]) {
                     foundIndex = i;
                     break;
                 }
@@ -2483,7 +2548,23 @@ function toggleBombardamento() {
                 showKeyboardError('ERRATO');
             }
         }
+		        if (currentMode === 'snd') {
+					if (userInput === sndCode) {
+                clearInterval(timerInterval);
+                clearKey();
+                closeKeyboardModal();
+                document.getElementById('passwordDisplay').innerText = 'ORDIGNO DISINNESCATO';
+                document.getElementById('passwordDisplay').style.fontSize = 'clamp(1.2rem, 3.5dvh, 1.8rem)';
+                document.getElementById('passwordDisplay').style.display = 'flex';
+                document.getElementById('instructionText').innerText = 'MISSIONE COMPIUTA! L\'ordigno è stato disinnescato con successo.';
+                document.getElementById('unlockSection').style.display = 'none';
+            } else {
+                showKeyboardError('CODICE ERRATO');
+            }
+            return;
+        }
     }
+		
 </script>
 </body>
 </html>
